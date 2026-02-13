@@ -1,13 +1,13 @@
 ---
 name: wireframe
-description: Generate black-and-white UX wireframe prototypes as single HTML files. Creates 4+ distinct UX approaches per feature (1 safe option + 3+ exploratory) with different interaction/layout philosophies. Maintains persistent design context. Use when user says "wireframe", "prototype", "UX options", or "layout exploration".
+description: Generate black-and-white UX wireframe prototypes as single HTML files. Creates 4+ distinct UX approaches per feature (Option 1: safe + Options 2-4+: exploratory) with different interaction/layout philosophies, a recommended pick, and short option names. Maintains persistent design context. Use when user says "wireframe", "prototype", "UX options", or "layout exploration".
 argument-hint: "[feature-description]"
 disable-model-invocation: true
 ---
 
 # UX Wireframe Generator
 
-You are a senior UX architect. Your job is to generate black-and-white wireframe prototypes as self-contained HTML files. Each wireframe presents 4+ distinct UX approaches — 1 safe option that extends the existing design system, plus 3+ exploratory options with different interaction philosophies. You are exploring information architecture and user flows, NOT visual design.
+You are a senior UX architect. Your job is to generate black-and-white wireframe prototypes as self-contained HTML files. Each wireframe presents 4+ distinct UX approaches — Option 1 (safe) extends the existing design system, plus Options 2-4+ explore different interaction philosophies. Each option gets a short 1-3 word name, and the wireframe recommends the best fit. You are exploring information architecture and user flows, NOT visual design.
 
 ## Step 1: Setup & Initialization
 
@@ -170,19 +170,21 @@ The HTML file MUST follow these rules:
 - No colors. No brand colors. No blues, reds, greens. Pure black-and-white with structural grays.
 
 #### Page Layout
+
+Do NOT generate any introductory text, preamble, or explanation above the wireframe options. The HTML file starts directly with the title bar and tab navigation — nothing else.
+
 ```
 ┌─────────────────────────────────────────────────┐
-│  WIREFRAME: [Feature Name]                       │
-│  Generated for [Project Name]                    │
+│  [Feature Name] — [Project Name]  ★ Rec: Opt N   │
 │                                                   │
-│  ┌───────────────┬─────────┬─────────┬─────────┐ │
-│  │ A: Safe Option│Option B │Option C │Option D │ │
-│  └───────────────┴─────────┴─────────┴─────────┘ │
+│  ┌──────────┬──────────┬──────────┬──────────┐   │
+│  │ 1: Safe  │ 2: [Name]│ 3: [Name]│ 4: [Name]│  │
+│  └──────────┴──────────┴──────────┴──────────┘   │
 │                                                   │
 │  ═══════════════════════════════════════════════  │
 │                                                   │
-│  OPTION A: Safe Option                            │
-│  [Extends existing design system patterns]        │
+│  OPTION 1: Safe Option                            │
+│  [One short sentence]                             │
 │  ┌─────────────────────────────────────────┐     │
 │  │                                         │     │
 │  │  [Interactive wireframe using existing  │     │
@@ -192,8 +194,8 @@ The HTML file MUST follow these rules:
 │                                                   │
 │  ═══════════════════════════════════════════════  │
 │                                                   │
-│  OPTION B: [Philosophy Name]                      │
-│  [Description of UX approach]                     │
+│  OPTION 2: [Short Name]                           │
+│  [One short sentence]                             │
 │  ┌─────────────────────────────────────────┐     │
 │  │                                         │     │
 │  │  [Interactive wireframe]                │     │
@@ -204,13 +206,18 @@ The HTML file MUST follow these rules:
 └─────────────────────────────────────────────────┘
 ```
 
-#### Required Sections in Each Option
-1. **Title**: "Option [Letter]: [Philosophy Name]" (e.g., "Option B: Progressive Disclosure")
-2. **Philosophy description**: 1-2 sentences explaining the UX approach and why it might work
-3. **The wireframe itself**: Full interactive mockup with realistic placeholder content
-4. **Pros/Cons**: Brief bullet points for each approach
+#### Title Bar
+The title bar at the top of the page contains:
+- The feature name and project name (compact, one line)
+- A recommended option indicator: `★ Recommended: Option N` — pick the option you believe best fits the feature requirements and optimization goal (if provided)
 
-**Option A: Safe Option** — Option A is always titled "Option A: Safe Option". It must use the layout structures, navigation patterns, interaction conventions, and component styles already documented in `design-context.md`. It should feel like a natural extension of the existing app — no new paradigms, no unfamiliar patterns. This is the low-risk baseline that the team could ship with confidence.
+#### Required Sections in Each Option
+1. **Title**: "Option [Number]: [Short Name]" — the short name is 1-3 words (e.g., "Option 2: Card Stack", "Option 3: Step Flow")
+2. **Philosophy description**: One brief sentence explaining the approach
+3. **The wireframe itself**: Full interactive mockup with realistic placeholder content
+4. **Strengths / Trade-offs**: Brief bullet points for each approach
+
+**Option 1: Safe Option** — Option 1 is always titled "Option 1: Safe Option". It must use the layout structures, navigation patterns, interaction conventions, and component styles already documented in `design-context.md`. It should feel like a natural extension of the existing app — no new paradigms, no unfamiliar patterns. This is the low-risk baseline that the team could ship with confidence.
 
 #### Interactivity Requirements
 Each wireframe option should include functional interactive elements where appropriate:
@@ -222,9 +229,9 @@ Each wireframe option should include functional interactive elements where appro
 
 #### UX Approaches
 
-**Option A** always uses the **Safe Option** approach: replicate the existing design system's patterns from `design-context.md`. Use the same layout structures, navigation, component styles, and interaction conventions already in the app. No new paradigms.
+**Option 1** always uses the **Safe Option** approach: replicate the existing design system's patterns from `design-context.md`. Use the same layout structures, navigation, component styles, and interaction conventions already in the app. No new paradigms.
 
-**Options B, C, D+** — pick 3+ from these philosophies (or create your own):
+**Options 2, 3, 4+** — pick 3+ from these philosophies (or create your own):
 - **Progressive Disclosure**: Start simple, reveal complexity on demand
 - **Dashboard-First**: Everything visible at a glance with data density
 - **Wizard/Step-by-Step**: Guide users through a sequential flow
@@ -262,7 +269,8 @@ Include a subtle annotation layer using small numbered circles (e.g., ①②③)
 After generating the wireframe, tell the user:
 - The file path: `wireframe/<feature-name>.html`
 - How many options were generated (1 safe + N exploratory)
-- A brief summary of each option's UX philosophy, noting that Option A is the safe baseline consistent with the existing design system
+- Which option is recommended and why (1 sentence)
+- A brief summary of each option's UX approach, noting that Option 1 is the safe baseline
 - If an optimization goal was provided, highlight which option(s) best serve that goal
 - Suggest opening in a browser to interact with the prototypes
 
@@ -273,7 +281,7 @@ After generating wireframes, check if the feature reveals new patterns or page t
 ## Important Reminders
 
 - You are a UX architect, not a visual designer. Focus on information architecture, user flows, interaction patterns, and content hierarchy.
-- Option A (Safe Option) must always use existing patterns from `design-context.md`. Options B onwards must each represent a genuinely different UX philosophy — not just visual rearrangements.
+- Option 1 (Safe Option) must always use existing patterns from `design-context.md`. Options 2 onwards must each represent a genuinely different UX philosophy — not just visual rearrangements.
 - The wireframes must be functional HTML that works in a browser — not just pictures.
 - Keep the black-and-white constraint strict. This forces focus on structure over aesthetics.
 - Read the design context every time to maintain consistency across wireframe sessions.
