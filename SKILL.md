@@ -48,6 +48,17 @@ When the user provides screenshots:
 - Note: page structure, content zones, navigation placement, whitespace usage, interactive affordances
 - Save screenshots to `wireframe/brain/` with descriptive names
 
+If the codebase research and screenshots don't make the target platform obvious (mobile app vs desktop/web vs responsive), ask the user using AskUserQuestion:
+
+> "What's the target platform for this product?"
+
+Options:
+- **Mobile** — designing primarily for mobile screens
+- **Desktop / Web** — designing primarily for desktop or web browsers
+- **Both (responsive)** — designing for both with responsive layouts
+
+Save the answer and use it in **Step 2c** under `## Target Platform`.
+
 ### 2c. Write Design Context
 
 Create `wireframe/brain/design-context.md` with this structure:
@@ -59,6 +70,9 @@ Generated: [date]
 
 ## App Overview
 [Brief description of what the app does based on codebase research]
+
+## Target Platform
+[Mobile / Desktop / Web / Both (responsive) — based on codebase research, screenshots, or user input]
 
 ## Layout Patterns
 - [Primary layout structure]
@@ -223,6 +237,16 @@ Each wireframe option should include functional interactive elements where appro
 - **Timeline**: Chronological or sequential presentation
 - **Search-First**: Search as primary navigation pattern
 - **Contextual Actions**: Actions appear near related content
+- **Feed-Based**: Content surfaces in a continuous scrollable stream optimized for browsing
+- **Spatial/Map-Centric**: Navigation anchored to geographic or visual spatial relationships
+- **Gesture-Driven**: Primary interactions via swipe, pull, pinch rather than buttons
+- **Command Palette**: Keyboard-first searchable access to all actions (CMD+K pattern)
+- **Notification-Driven**: Interface organized around alerts and updates that prompt action
+- **Floating Action**: Persistent primary action button that morphs to reveal contextual options
+- **Comparison Table**: Side-by-side feature/attribute matrix for evaluating options
+- **Drag-and-Drop**: Direct manipulation to reorder, organize, or assign items
+- **Accordion/Collapsible**: Vertically stacked expandable sections to manage density
+- **Gamified Progress**: Achievement markers, progress bars, and streaks to drive engagement
 
 #### Content Guidelines
 - Use realistic placeholder content relevant to the project (not lorem ipsum)
