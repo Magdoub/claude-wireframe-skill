@@ -2,8 +2,6 @@
 
 A [Claude Code](https://docs.anthropic.com/en/docs/claude-code) skill that generates black-and-white UX wireframe prototypes as interactive HTML files.
 
-![Wireframe example showing tab navigation between UX options](examples/wireframe-tabs.png)
-
 ## What it does
 
 - Generates **3+ distinct UX approaches** for any feature, each with a different interaction philosophy (progressive disclosure, card-based, split view, etc.)
@@ -12,10 +10,6 @@ A [Claude Code](https://docs.anthropic.com/en/docs/claude-code) skill that gener
 - **Learns your codebase** on first run — scans your CSS, JS, templates, and screenshots to build persistent design context
 - Includes **numbered UX annotations** explaining key interaction decisions
 - Strict **black-and-white palette** to keep focus on structure over aesthetics
-
-![Interactive wireframe with expandable cards and realistic content](examples/wireframe-option-detail.png)
-
-![UX annotations explaining interaction decisions](examples/wireframe-annotations.png)
 
 ## Installation
 
@@ -31,10 +25,10 @@ Or manually: download [`SKILL.md`](SKILL.md) and place it at `~/.claude/skills/w
 In any project with Claude Code:
 
 ```
-/wireframe signup flow
-/wireframe dashboard redesign
-/wireframe settings page
-/wireframe onboarding wizard
+/wireframe simplify the signup flow
+/wireframe add a search bar to the listing page
+/wireframe redesign the dashboard with better data density
+/wireframe add an onboarding wizard for new users
 ```
 
 ### First run
@@ -83,6 +77,10 @@ The skill picks 3+ approaches per feature from philosophies like:
 ```bash
 rm -rf ~/.claude/skills/wireframe
 ```
+
+## Author
+
+Built by [@magdoub](https://twitter.com/magdoub)
 
 ## License
 
