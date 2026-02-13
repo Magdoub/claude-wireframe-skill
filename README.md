@@ -11,6 +11,10 @@ A [Claude Code](https://docs.anthropic.com/en/docs/claude-code) skill that gener
 - Includes **numbered UX annotations** explaining key interaction decisions
 - Strict **black-and-white palette** to keep focus on structure over aesthetics
 
+
+https://github.com/user-attachments/assets/8cfee587-5379-4af2-97f1-03138a14fa52
+
+
 ## Installation
 
 ```bash
