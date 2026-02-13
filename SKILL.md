@@ -177,9 +177,9 @@ Do NOT generate any introductory text, preamble, or explanation above the wirefr
 ┌─────────────────────────────────────────────────┐
 │  [Feature Name] — [Project Name]  ★ Rec: Opt N   │
 │                                                   │
-│  ┌──────────┬──────────┬──────────┬──────────┐   │
-│  │ 1: Safe  │ 2: [Name]│ 3: [Name]│ 4: [Name]│  │
-│  └──────────┴──────────┴──────────┴──────────┘   │
+│  ┌────────┬─────────┬─────────┬─────────┬─────────┐ │
+│  │1: Safe │2: [Name]│3: [Name]│4: [Name]│ Summary │ │
+│  └────────┴─────────┴─────────┴─────────┴─────────┘ │
 │                                                   │
 │  ═══════════════════════════════════════════════  │
 │                                                   │
@@ -203,21 +203,36 @@ Do NOT generate any introductory text, preamble, or explanation above the wirefr
 │  └─────────────────────────────────────────┘     │
 │                                                   │
 │  ... more exploratory options ...                 │
+│                                                   │
+│  ═══════════════════════════════════════════════  │
+│                                                   │
+│  SUMMARY                                          │
+│  ┌─────────────────────────────────────────┐     │
+│  │  Scoring table + Recommended pick       │     │
+│  └─────────────────────────────────────────┘     │
+│                                                   │
 └─────────────────────────────────────────────────┘
 ```
 
 #### Title Bar
 The title bar at the top of the page contains:
 - The feature name and project name (compact, one line)
-- A recommended option indicator: `★ Recommended: Option N` — pick the option you believe best fits the feature requirements and optimization goal (if provided)
+- A recommended option indicator: `★ Recommended: Option N` — pick the option that best serves the user's optimization goal. If no goal was provided, pick the option with the best overall UX balance.
 
 #### Required Sections in Each Option
 1. **Title**: "Option [Number]: [Short Name]" — the short name is 1-3 words (e.g., "Option 2: Card Stack", "Option 3: Step Flow")
 2. **Philosophy description**: One brief sentence explaining the approach
 3. **The wireframe itself**: Full interactive mockup with realistic placeholder content
-4. **Strengths / Trade-offs**: Brief bullet points for each approach
 
 **Option 1: Safe Option** — Option 1 is always titled "Option 1: Safe Option". It must use the layout structures, navigation patterns, interaction conventions, and component styles already documented in `design-context.md`. It should feel like a natural extension of the existing app — no new paradigms, no unfamiliar patterns. This is the low-risk baseline that the team could ship with confidence.
+
+#### Summary Tab
+The Summary tab is the final tab. It provides a comparative overview of all options:
+
+- **Scoring table**: A compact HTML table with one row per option. Columns: Option name, a brief 1-line description, and a score (1–5 stars) against the optimization goal (or "Overall UX" if no goal was provided).
+- **Recommended pick**: 1–2 sentences explaining why the recommended option was chosen, referencing the optimization goal (or overall UX balance if no goal).
+
+Keep it brief — just the table and the recommendation rationale, no lengthy prose.
 
 #### Interactivity Requirements
 Each wireframe option should include functional interactive elements where appropriate:
