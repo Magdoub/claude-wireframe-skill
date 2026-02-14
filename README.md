@@ -2,6 +2,16 @@
 
 A [Claude Code](https://docs.anthropic.com/en/docs/claude-code) skill that generates black-and-white UX wireframe prototypes as interactive HTML files.
 
+
+## Installation
+
+```bash
+mkdir -p ~/.claude/skills
+git clone https://github.com/Magdoub/claude-wireframe-skill.git ~/.claude/skills/wireframe
+```
+
+Or manually: download [`SKILL.md`](SKILL.md) and place it at `~/.claude/skills/wireframe/SKILL.md`.
+
 ## What it does
 
 - Generates **3+ distinct UX approaches** for any feature, each with a different interaction philosophy (progressive disclosure, card-based, split view, etc.)
@@ -15,14 +25,6 @@ A [Claude Code](https://docs.anthropic.com/en/docs/claude-code) skill that gener
 https://github.com/user-attachments/assets/8cfee587-5379-4af2-97f1-03138a14fa52
 
 
-## Installation
-
-```bash
-mkdir -p ~/.claude/skills
-git clone https://github.com/Magdoub/claude-wireframe-skill.git ~/.claude/skills/wireframe
-```
-
-Or manually: download [`SKILL.md`](SKILL.md) and place it at `~/.claude/skills/wireframe/SKILL.md`.
 
 ## Usage
 
