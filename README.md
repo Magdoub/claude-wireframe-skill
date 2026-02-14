@@ -4,7 +4,7 @@ A [Claude Code](https://docs.anthropic.com/en/docs/claude-code) skill that gener
 
 
 ## Installation
-
+Open up the terminal and run this command:
 ```bash
 mkdir -p ~/.claude/skills
 git clone https://github.com/Magdoub/claude-wireframe-skill.git ~/.claude/skills/wireframe
