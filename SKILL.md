@@ -1,6 +1,6 @@
 ---
 name: wireframe
-description: Progressive UX generation — Phase 1 generates 5 B&W wireframe options instantly (1 safe + 4 exploratory), then Phase 2 renders Clean + Polished color variants in the background via a Task agent. Different interaction/layout philosophies, a recommended pick, and short option names. Maintains persistent design context. Use when user says "wireframe", "prototype", "UX options", or "layout exploration".
+description: Progressive UX generation — Phase 1 generates 4 B&W wireframe options instantly (1 safe + 3 exploratory), then Phase 2 renders Clean + Polished color variants via a foreground Task agent with progressive feedback. Different interaction/layout philosophies, a recommended pick, and short option names. Maintains persistent design context. Use when user says "wireframe", "prototype", "UX options", or "layout exploration".
 argument-hint: "[feature-description]"
 ---
 
@@ -8,11 +8,11 @@ argument-hint: "[feature-description]"
 
 You operate as two personas across two phases.
 
-**Persona 1 — UX Architect (Phase 1, foreground):** Generates 5 B&W wireframe options exploring information architecture, user flows, and interaction design. Writes `index.html` + `styles.css` with placeholder stubs for color variants, opens in browser immediately.
+**Persona 1 — UX Architect (Phase 1, foreground):** Generates 4 B&W wireframe options exploring information architecture, user flows, and interaction design. Writes `index.html` + `styles.css` with placeholder stubs for color variants, opens in browser immediately.
 
-**Persona 2 — Visual Designer (Phase 2, background Task agent):** Launched as a background Task agent immediately after Phase 1. Reads the generated files + `design-taste.md` + `design-context.md`, then edits both files to replace placeholders with 2 colorful production-quality UI renderings per option (Clean, Polished). The layout is locked; only the visual treatment changes.
+**Persona 2 — Visual Designer (Phase 2, foreground Task agent):** Launched as a foreground Task agent immediately after Phase 1. Reads the generated files + `design-taste.md` + `design-context.md`, then edits both files to replace placeholders with 2 colorful production-quality UI renderings per option (Clean, Polished). Processes options one at a time, printing progress after each. The layout is locked; only the visual treatment changes.
 
-Together, these two phases produce self-contained HTML files. Each file presents 5 distinct UX approaches — Option 1 (safe) extends the existing design system, plus Options 2–5 explore different interaction philosophies. Each option gets a short 1-3 word name, and the wireframe recommends the best fit. The user sees B&W wireframes in ~40-60s, then refreshes to see color variants ~60s later.
+Together, these two phases produce self-contained HTML files. Each file presents 4 distinct UX approaches — Option 1 (safe) extends the existing design system, plus Options 2–4 explore different interaction philosophies. Each option gets a short 1-3 word name, and the wireframe recommends the best fit. The user sees B&W wireframes in ~40-60s, then gets progressive updates as each option's color variants complete.
 
 ## Step 1: Setup & Initialization
 
@@ -146,7 +146,7 @@ Create an output folder at `wireframe/DDMM-<feature-name>/` where `DDMM` is toda
 - `index.html` — HTML structure + inline `<script>`
 - `styles.css` — all CSS (linked via `<link rel="stylesheet" href="styles.css">` in `<head>`)
 
-Generate **5 B&W wireframe options** (Option 1: Safe + Options 2–5: exploratory). The Clean and Polished sub-tabs render a placeholder `<div>` with this centered message:
+Generate **4 B&W wireframe options** (Option 1: Safe + Options 2–4: exploratory). The Clean and Polished sub-tabs render a placeholder `<div>` with this centered message:
 
 ```
 ✦ Visual styles generating — refresh in ~60 seconds
@@ -186,9 +186,9 @@ No introductory text above wireframes. HTML starts directly with the title bar a
 ```
 ┌─────────────────────────────────────────────────┐
 │  [Feature Name] — [Project Name]  ★ Rec: Opt N │
-│  ┌──────┬──────┬──────┬──────┬──────┬─────────┐ │
-│  │1:Safe│2:Name│3:Name│4:Name│5:Name│ Summary │ │
-│  └──────┴──────┴──────┴──────┴──────┴─────────┘ │
+│  ┌──────┬──────┬──────┬──────┬─────────┐        │
+│  │1:Safe│2:Name│3:Name│4:Name│ Summary │        │
+│  └──────┴──────┴──────┴──────┴─────────┘        │
 │  Option 1: Safe Option                           │
 │  [One short sentence]                            │
 │     ⬡        🖌       ◇                          │
@@ -220,7 +220,7 @@ Include functional interactive elements: clickable tabs/accordions, typeable for
 
 **Option 1**: Safe Option — replicate existing patterns from `design-context.md`.
 
-**Options 2–5** — pick 4 from: Progressive Disclosure, Dashboard-First, Wizard/Step-by-Step, Hub-and-Spoke, Inline Editing, Split View, Card-Based, Conversational, Kanban/Column, Timeline, Search-First, Contextual Actions, Feed-Based, Spatial/Map-Centric, Gesture-Driven, Command Palette, Notification-Driven, Floating Action, Comparison Table, Drag-and-Drop, Accordion/Collapsible, Gamified Progress — or create your own.
+**Options 2–4** — pick 3 from: Progressive Disclosure, Dashboard-First, Wizard/Step-by-Step, Hub-and-Spoke, Inline Editing, Split View, Card-Based, Conversational, Kanban/Column, Timeline, Search-First, Contextual Actions, Feed-Based, Spatial/Map-Centric, Gesture-Driven, Command Palette, Notification-Driven, Floating Action, Comparison Table, Drag-and-Drop, Accordion/Collapsible, Gamified Progress — or create your own.
 
 #### Content Guidelines
 - Realistic placeholder content (not lorem ipsum), realistic data quantities
@@ -244,35 +244,40 @@ Small numbered markers (①②③) on wireframe elements, corresponding to UX no
 - Inactive: `#999`. Wireframe active by default.
 - Sub-tab bar visually lighter than main tabs — compact spacing for clear hierarchy.
 
-### 3e. Launch Background Color Agent (Phase 2)
+### 3e. Launch Foreground Color Agent (Phase 2)
 
-Immediately after writing `index.html` and `styles.css`, launch a background Task agent to generate the color variants:
+Immediately after writing `index.html` and `styles.css`, launch a **foreground** Task agent to generate the color variants:
 
 ```
 Tool: Task
 subagent_type: "general-purpose"
-run_in_background: true
+run_in_background: false
 ```
 
 The agent prompt MUST include:
 1. **File paths**: Full absolute paths to the generated `index.html`, `styles.css`, `design-taste.md`, and `design-context.md`
 2. **Visual Designer persona**: The instructions below
 3. **CSS budget**: Each color variant adds ≤ 200 lines to `styles.css`
+4. **Progressive processing**: Process options one at a time (1, then 2, then 3, then 4) and print a progress message after each
 
-**Visual Designer persona for the background agent prompt:**
+**Visual Designer persona for the foreground agent prompt:**
 
 > You are the Visual Designer. The UX Architect's B&W wireframe layout is locked. Your job: bring each wireframe to life with color, typography, and motion. Do NOT change layout, information architecture, or content hierarchy — only visual treatment changes.
 >
 > **Your task:**
 > 1. Read `index.html`, `styles.css`, `design-taste.md`, and `design-context.md`
-> 2. For each option (1–5), replace the placeholder div (`id="placeholder-optN-clean"`) with the full Clean variant HTML, and replace `placeholder-optN-polished` with the full Polished variant HTML
-> 3. Append color variant CSS to `styles.css` using `.clean .selector` and `.polished .selector` overrides only. Do NOT duplicate layout rules — only override: `color`, `background`, `border-color`, `box-shadow`, `font-family`, `font-weight`, `transition`, `animation`. Each variant ≤ 200 lines of CSS.
+> 2. Process options **one at a time, sequentially** (option 1, then 2, then 3, then 4). For each option:
+>    a. Replace the placeholder div (`id="placeholder-optN-clean"`) with the full Clean variant HTML
+>    b. Replace `placeholder-optN-polished` with the full Polished variant HTML
+>    c. Append that option's color variant CSS to `styles.css` using `.clean .selector` and `.polished .selector` overrides only
+>    d. After completing each option, output this exact progress message: `✔ Option N of 4 complete — refresh browser to see it`
+> 3. Do NOT duplicate layout rules — only override: `color`, `background`, `border-color`, `box-shadow`, `font-family`, `font-weight`, `transition`, `animation`. Each variant ≤ 200 lines of CSS.
 > 4. Google Fonts may be added via `@import` at the top of `styles.css`
 > 5. No other external dependencies (no CDN links, no icon libraries, no JS libraries)
 >
 > **Clean (Style A)**: Simple, clean colors from `design-context.md` palette (or Warmth/Precision tokens from `design-taste.md`). Solid fills, clean typography, proper spacing. No gradients, no effects — just color applied to the layout.
 >
-> **Polished (Style B)**: Same palette as Clean but elevated: bolder contrasts, refined gradients, enhanced hover effects, CSS animations (staggered fade-in, smooth transitions, micro-interactions). Respect `prefers-reduced-motion`. Builds on Clean — not a different theme. Elevation via richer gradients/shadows/motion, not color scheme inversion.
+> **Polished (Style B)**: Same palette as Clean but elevated: bolder contrasts, refined gradients, enhanced hover effects, CSS animations (staggered fade-in, smooth transitions, micro-interactions). Polished MUST include visible CSS animations: staggered entrance reveals, hover transitions, and micro-interactions on buttons/inputs. Respect `prefers-reduced-motion`. Builds on Clean — not a different theme. Elevation via richer gradients/shadows/motion, not color scheme inversion.
 >
 > **Rules:**
 > - EXACT same layout/structure as B&W wireframe — only visual treatment changes
@@ -282,17 +287,25 @@ The agent prompt MUST include:
 > - Avoid anti-patterns from `design-taste.md`
 > - No annotation markers on color variants
 
-### 3f. Report to User
+### 3f. Report to User (two phases)
 
-First, open the generated HTML file: `open wireframe/DDMM-<feature-name>/index.html`
+**3f-i. After wireframes written (before launching color agent):**
+
+Open the generated HTML file: `open wireframe/DDMM-<feature-name>/index.html`
 
 Then tell the user:
-- How many options were generated (1 safe + 4 exploratory)
+- How many options were generated (1 safe + 3 exploratory)
 - Which option is recommended and why (1 sentence)
 - Brief summary of each option's UX approach
 - If an optimization goal was provided, highlight which option(s) best serve that goal
-- Note: **"Color variants (Clean + Polished) are generating in the background. Refresh the page in ~60s to see them."**
-- Last line: print the folder path `wireframe/DDMM-<feature-name>/`
+- Note: **"Wireframes are ready in your browser. Color variants (Clean + Polished) are generating now — I'll update you as each option completes."**
+- Print the folder path `wireframe/DDMM-<feature-name>/`
+
+Then launch the foreground color agent (Step 3e).
+
+**3f-ii. After color agent completes:**
+
+Tell the user: **"All 4 options now have color variants (Clean + Polished). Refresh your browser to see the final result."**
 
 ## Step 4: Update Design Context
 
@@ -302,7 +315,7 @@ After generating wireframes, check if the feature reveals new patterns or page t
 
 - **Persona 1 (UX Architect)** owns wireframe structure: layout, content hierarchy, navigation, interactive behavior.
 - **Persona 2 (Visual Designer)** owns color variants: color, typography, spacing refinement, motion. Layout is locked.
-- Option 1 must use existing patterns from `design-context.md`. Options 2–5 must each represent a genuinely different UX philosophy.
+- Option 1 must use existing patterns from `design-context.md`. Options 2–4 must each represent a genuinely different UX philosophy.
 - Wireframes must be functional HTML. B&W constraint strict for Wireframe sub-tab.
 - Read both `design-context.md` and `design-taste.md` every time.
 - When wireframing a component (not a full page), render it as a standalone element filling the available width.
