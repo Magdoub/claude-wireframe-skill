@@ -281,13 +281,14 @@ Include a subtle annotation layer using small numbered circles (e.g., ①②③)
 
 ### 3e. Report to User
 
-After generating the wireframe, tell the user:
-- The file path: `wireframe/<feature-name>.html`
+First, open the generated HTML file in the user's default browser using the Bash tool: `open wireframe/<feature-name>.html`
+
+Then tell the user:
 - How many options were generated (1 safe + N exploratory)
 - Which option is recommended and why (1 sentence)
 - A brief summary of each option's UX approach, noting that Option 1 is the safe baseline
 - If an optimization goal was provided, highlight which option(s) best serve that goal
-- Suggest opening in a browser to interact with the prototypes
+- As the very last line of your reply, print the file path: `wireframe/<feature-name>.html`
 
 ## Step 4: Update Design Context
 
