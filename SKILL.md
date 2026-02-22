@@ -161,7 +161,7 @@ Do NOT ask clarifying questions about visual styling — this is a UX wireframe,
 Create an output folder at `wireframe/DDMM-<feature-name>/` where `DDMM` is today's date formatted as day then month, zero-padded (e.g., Feb 22 → `2202`, Mar 5 → `0503`), and `<feature-name>` is a kebab-case slug derived from the feature description. Inside this folder, generate these files:
 - `index.html` — HTML structure + inline `<script>`
 - `styles.css` — all wireframe CSS (linked via `<link rel="stylesheet" href="styles.css">` in `<head>`)
-- `styles-opt1.css`, `styles-opt2.css`, `styles-opt3.css`, `styles-opt4.css` — empty files for Phase 2 color variant CSS (each linked via `<link rel="stylesheet">` in `<head>` after `styles.css`)
+- `styles-opt1.css`, `styles-opt2.css`, `styles-opt3.css`, `styles-opt4.css` — empty files for Phase 2 color variant CSS (each linked via `<link rel="stylesheet" data-variant-opt="N">` in `<head>` after `styles.css` — no `onload`)
 
 Generate **4 B&W wireframe options** (Option 1: Safe + Options 2–4: exploratory). Phase 1 renders each option's content once inside a `<div class="browser-frame wireframe" id="frame-optN">`. Sub-tab JS toggles the wrapper class between `wireframe`, `clean`, and `polished` — no separate content panels. Annotations (`.wf-annotations`) are hidden via CSS when class is `clean` or `polished`.
 
@@ -215,6 +215,16 @@ No introductory text above wireframes. HTML starts directly with the title bar a
 ```
 
 Each main tab shows its own option panel with sub-tabs. Summary tab shows scoring table + recommendation. Only one panel visible at a time.
+
+**Attribution footer** — Phase 1 must include a footer at the bottom of the page (outside `page-wrapper`, after all option panels):
+
+```html
+<footer class="skill-footer">
+  This design was crafted by the <a href="https://github.com/Magdoub/claude-wireframe-skill">Wireframe skill</a> — follow on GitHub
+</footer>
+```
+
+Styled in `styles.css`: centered, `font-size: 11px`, `color: #999`, `padding: 16px`, `margin-top: 8px`. Link color `#666`, underline on hover only (`text-decoration: none` default, `text-decoration: underline` on `:hover`).
 
 #### Browser / Device Frame
 
@@ -282,21 +292,82 @@ Phase 1 must add a small badge element to each Clean and Polished sub-tab button
 
 Styled as: small pill badge (`font-size: 9px; background: #f0f0f0; color: #999; border-radius: 8px; padding: 1px 6px;`) positioned above or next to the icon.
 
-**`onload` mechanism for variant CSS files:**
+**Polling mechanism for variant CSS detection:**
 
-Each variant CSS `<link>` tag in `<head>` must include an `onload` handler:
+Phase 1 creates empty CSS files and links them in `<head>` with a data attribute (no `onload`):
 
 ```html
-<link rel="stylesheet" href="styles-opt1.css" onload="optionReady(1)">
-<link rel="stylesheet" href="styles-opt2.css" onload="optionReady(2)">
-<link rel="stylesheet" href="styles-opt3.css" onload="optionReady(3)">
-<link rel="stylesheet" href="styles-opt4.css" onload="optionReady(4)">
+<link rel="stylesheet" href="styles-opt1.css" data-variant-opt="1">
+<link rel="stylesheet" href="styles-opt2.css" data-variant-opt="2">
+<link rel="stylesheet" href="styles-opt3.css" data-variant-opt="3">
+<link rel="stylesheet" href="styles-opt4.css" data-variant-opt="4">
 ```
 
-The `optionReady(n)` JS function (included in Phase 1's inline `<script>`):
-1. Removes `.sub-tab-badge` elements from option N's Clean and Polished sub-tabs
-2. Adds `.variant-ready` class to those sub-tab buttons (triggers CSS color change from gray to blue/green)
-3. Tracks how many options are ready. When all 4 are ready, shows the completion banner.
+The inline `<script>` (before `</body>`) must include a `pollVariantCSS()` function:
+
+```js
+var readyOptions = {};
+var readyCount = 0;
+
+function optionReady(n) {
+  if (readyOptions[n]) return; // dedup guard
+  readyOptions[n] = true;
+  readyCount++;
+  // Remove badges from option N's Clean/Polished sub-tabs
+  document.querySelectorAll('#frame-opt' + n + '-tabs .sub-tab-badge')
+    .forEach(function(b) { b.remove(); });
+  // Add .variant-ready class to Clean/Polished sub-tab buttons
+  document.querySelectorAll('#frame-opt' + n + '-tabs .sub-tab-btn[data-variant]')
+    .forEach(function(btn) { btn.classList.add('variant-ready'); });
+  // Show completion banner when all 4 are ready
+  if (readyCount >= 4) {
+    var banner = document.getElementById('completion-banner');
+    if (banner) {
+      banner.style.display = 'block';
+      setTimeout(function() { banner.style.display = 'none'; }, 8000);
+    }
+  }
+}
+
+function pollVariantCSS() {
+  for (var n = 1; n <= 4; n++) {
+    if (readyOptions[n]) continue;
+    var old = document.querySelector('link[data-variant-opt="' + n + '"]');
+    if (!old) continue;
+    var href = old.getAttribute('href');
+    // Remove old link and insert fresh one to force browser re-read from disk
+    old.parentNode.removeChild(old);
+    var fresh = document.createElement('link');
+    fresh.rel = 'stylesheet';
+    fresh.href = href + '?t=' + Date.now();
+    fresh.setAttribute('data-variant-opt', n);
+    (function(optNum) {
+      fresh.onload = function() {
+        try {
+          if (this.sheet && this.sheet.cssRules && this.sheet.cssRules.length > 0) {
+            optionReady(optNum);
+          }
+        } catch(e) { /* CORS or empty — retry next cycle */ }
+      };
+    })(n);
+    document.head.appendChild(fresh);
+  }
+  if (readyCount < 4) {
+    setTimeout(pollVariantCSS, 3000);
+  }
+}
+
+// Start polling 5s after page load
+setTimeout(pollVariantCSS, 5000);
+```
+
+Key points:
+- Link tags use `data-variant-opt="N"` — no `onload` on the initial tags
+- Polling starts 5s after page load, runs every 3s
+- Each cycle removes the old `<link>` and inserts a fresh one with a cache-busting `?t=` param — this forces the browser to re-read the file from disk (critical for `file://` protocol)
+- On the fresh link's `onload`, checks `sheet.cssRules.length > 0` to verify real CSS content (not an empty file)
+- `optionReady(n)` is only called when CSS has actual rules
+- Dedup guard prevents double-firing
 
 **Completion banner:**
 
@@ -317,7 +388,7 @@ Sub-tab clicks swap the class on `#frame-optN` between `wireframe`, `clean`, `po
 
 ### 3e. Launch Parallel Color Agents (Phase 2)
 
-Immediately after writing `index.html` and `styles.css`, launch **4 parallel foreground Task agents** in a single tool-call message — one per option. Each agent writes its CSS to a **separate file** (`styles-opt1.css`, `styles-opt2.css`, `styles-opt3.css`, `styles-opt4.css`). The Phase 1 HTML must include `<link>` tags for all 4 variant CSS files in `<head>` (empty files created during Phase 1).
+Immediately after writing `index.html` and `styles.css`, launch **4 parallel foreground Task agents** in a single tool-call message — one per option. Each agent writes its CSS to a **separate file** (`styles-opt1.css`, `styles-opt2.css`, `styles-opt3.css`, `styles-opt4.css`). The Phase 1 HTML must include `<link data-variant-opt="N">` tags for all 4 variant CSS files in `<head>` (empty files created during Phase 1).
 
 ```
 Launch all 4 Task agents in ONE tool-call message (parallel):
@@ -421,7 +492,7 @@ open wireframe/DDMM-<feature-name>/index.html
 
 Tell the user: **"All 4 options now have color variants (Clean + Polished). The page has been re-opened with the final result."**
 
-Note: Do not include "Refresh your browser" language — the in-page `optionReady()` mechanism and completion banner handle live notification automatically.
+Note: Do not include "Refresh your browser" language — the in-page polling mechanism and completion banner handle live notification automatically.
 
 ## Step 4: Update Design Context
 
