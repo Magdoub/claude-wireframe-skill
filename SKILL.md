@@ -1,6 +1,6 @@
 ---
 name: wireframe
-description: Progressive UX generation — Phase 1 generates 4 B&W wireframe options instantly (1 safe + 3 exploratory), then Phase 2 renders Clean + Polished color variants via a foreground Task agent with progressive feedback. Different interaction/layout philosophies, a recommended pick, and short option names. Maintains persistent design context. Use when user says "wireframe", "prototype", "UX options", or "layout exploration".
+description: Progressive UX generation — Phase 1 generates 4 B&W wireframe options instantly (1 safe + 3 exploratory), then Phase 2 renders Clean + Polished color variants via 4 parallel Task agents (one per option). Supports wireframes-only or wireframes+visuals. Extracts optimization intent from arguments when present. Maintains persistent design context. Use when user says "wireframe", "prototype", "UX options", or "layout exploration".
 argument-hint: "[feature-description]"
 ---
 
@@ -10,9 +10,9 @@ You operate as two personas across two phases.
 
 **Persona 1 — UX Architect (Phase 1, foreground):** Generates 4 B&W wireframe options exploring information architecture, user flows, and interaction design. Writes `index.html` + `styles.css` with placeholder stubs for color variants, opens in browser immediately.
 
-**Persona 2 — Visual Designer (Phase 2, foreground Task agent):** Launched as a foreground Task agent immediately after Phase 1. Reads the generated files + `design-taste.md` + `design-context.md`, then edits both files to replace placeholders with 2 colorful production-quality UI renderings per option (Clean, Polished). Processes options one at a time, printing progress after each. The layout is locked; only the visual treatment changes.
+**Persona 2 — Visual Designer (Phase 2, 4 parallel foreground Task agents):** Launched as 4 parallel foreground Task agents immediately after Phase 1 — one per option, each named "[Option Name]: Visual Designer". Each agent reads the generated files + `design-taste.md` + `design-context.md`, then edits `index.html` and writes its own `styles-optN.css` to replace placeholders with 2 colorful production-quality UI renderings (Clean, Polished). The layout is locked; only the visual treatment changes.
 
-Together, these two phases produce self-contained HTML files. Each file presents 4 distinct UX approaches — Option 1 (safe) extends the existing design system, plus Options 2–4 explore different interaction philosophies. Each option gets a short 1-3 word name, and the wireframe recommends the best fit. The user sees B&W wireframes in ~40-60s, then gets progressive updates as each option's color variants complete.
+Together, these two phases produce self-contained HTML files. Each file presents 4 distinct UX approaches — Option 1 (safe) extends the existing design system, plus Options 2–4 explore different interaction philosophies. Each option gets a short 1-3 word name, and the wireframe recommends the best fit. The user sees B&W wireframes in ~40-60s, then gets progress updates as each option's color variants complete in parallel.
 
 ## Step 1: Setup & Initialization
 
@@ -115,7 +115,9 @@ The feature to wireframe comes from `$ARGUMENTS`. If `$ARGUMENTS` is empty or un
 
 ### 3b. Optimization Goal (optional)
 
-Before generating wireframes, ask the user what they're optimizing for using AskUserQuestion. This is optional — the user can skip it.
+Before asking, check if `$ARGUMENTS` already contains an optimization intent — phrases like "make it more [adjective]", "improve [aspect]", "redesign for [goal]", "more compact", "more consistent", "reduce clutter", "simplify", "modernize", etc. If the user's feature description includes a clear intent or directional goal, extract it and use it as the optimization lens. Skip the AskUserQuestion entirely.
+
+Only ask the optimization goal question if the feature description is neutral (e.g., "article page", "settings dashboard") with no directional intent:
 
 > "What are you optimizing for with this feature? This helps me focus the UX options. Feel free to skip if you're exploring broadly."
 
@@ -125,7 +127,7 @@ Options:
 - **More time on page** — prioritize content depth, engagement hooks, and exploration paths
 - **Better discoverability** — prioritize navigation, search, and information scent
 
-If the user provides a goal, use it to:
+If the user provides a goal (or one was extracted from `$ARGUMENTS`), use it to:
 - Weight the UX philosophy selection toward approaches that serve that goal
 - Frame the pros/cons of each option in terms of how well it achieves the goal
 - Highlight which option best serves the stated goal in the report
@@ -142,9 +144,10 @@ Do NOT ask clarifying questions about visual styling — this is a UX wireframe,
 
 ### 3d. Generate Wireframes (Phase 1 — UX Architect)
 
-Create an output folder at `wireframe/DDMM-<feature-name>/` where `DDMM` is today's date formatted as day then month, zero-padded (e.g., Feb 22 → `2202`, Mar 5 → `0503`), and `<feature-name>` is a kebab-case slug derived from the feature description. Inside this folder, generate two files:
+Create an output folder at `wireframe/DDMM-<feature-name>/` where `DDMM` is today's date formatted as day then month, zero-padded (e.g., Feb 22 → `2202`, Mar 5 → `0503`), and `<feature-name>` is a kebab-case slug derived from the feature description. Inside this folder, generate these files:
 - `index.html` — HTML structure + inline `<script>`
-- `styles.css` — all CSS (linked via `<link rel="stylesheet" href="styles.css">` in `<head>`)
+- `styles.css` — all wireframe CSS (linked via `<link rel="stylesheet" href="styles.css">` in `<head>`)
+- `styles-opt1.css`, `styles-opt2.css`, `styles-opt3.css`, `styles-opt4.css` — empty files for Phase 2 color variant CSS (each linked via `<link rel="stylesheet">` in `<head>` after `styles.css`)
 
 Generate **4 B&W wireframe options** (Option 1: Safe + Options 2–4: exploratory). The Clean and Polished sub-tabs render a placeholder `<div>` with this centered message:
 
@@ -244,40 +247,54 @@ Small numbered markers (①②③) on wireframe elements, corresponding to UX no
 - Inactive: `#999`. Wireframe active by default.
 - Sub-tab bar visually lighter than main tabs — compact spacing for clear hierarchy.
 
-### 3e. Launch Foreground Color Agent (Phase 2)
+### 3e. Launch Parallel Color Agents (Phase 2)
 
-Immediately after writing `index.html` and `styles.css`, launch a **foreground** Task agent to generate the color variants:
+Immediately after writing `index.html` and `styles.css`, launch **4 parallel foreground Task agents** in a single tool-call message — one per option. Each agent writes its CSS to a **separate file** (`styles-opt1.css`, `styles-opt2.css`, `styles-opt3.css`, `styles-opt4.css`). The Phase 1 HTML must include `<link>` tags for all 4 variant CSS files in `<head>` (empty files created during Phase 1).
 
 ```
-Tool: Task
-subagent_type: "general-purpose"
-run_in_background: false
+Launch all 4 Task agents in ONE tool-call message (parallel):
+
+Agent 1: description: "[Option 1 Name]: Visual Designer"
+Agent 2: description: "[Option 2 Name]: Visual Designer"
+Agent 3: description: "[Option 3 Name]: Visual Designer"
+Agent 4: description: "[Option 4 Name]: Visual Designer"
+
+All with:
+  subagent_type: "general-purpose"
+  run_in_background: false
 ```
 
-The agent prompt MUST include:
-1. **File paths**: Full absolute paths to the generated `index.html`, `styles.css`, `design-taste.md`, and `design-context.md`
+Each agent's prompt MUST include:
+1. **File paths**: Full absolute paths to `index.html`, the agent's own `styles-optN.css`, `design-taste.md`, and `design-context.md`
 2. **Visual Designer persona**: The instructions below
-3. **CSS budget**: Each color variant adds ≤ 200 lines to `styles.css`
-4. **Progressive processing**: Process options one at a time (1, then 2, then 3, then 4) and print a progress message after each
+3. **Scope**: "You are responsible for Option N only. Replace `placeholder-optN-clean` and `placeholder-optN-polished` in `index.html`. Write all your CSS to `styles-optN.css`. Do not touch any other option's placeholders or CSS files."
+4. **CSS budget**: ≤ 200 lines in `styles-optN.css`
 
-**Visual Designer persona for the foreground agent prompt:**
+**Visual Designer persona for each agent prompt:**
 
-> You are the Visual Designer. The UX Architect's B&W wireframe layout is locked. Your job: bring each wireframe to life with color, typography, and motion. Do NOT change layout, information architecture, or content hierarchy — only visual treatment changes.
+> You are the Visual Designer for Option N: [Option Name]. The UX Architect's B&W wireframe layout is locked. Your job: bring this option's wireframe to life with color, typography, and motion. Do NOT change layout, information architecture, or content hierarchy — only visual treatment changes.
 >
 > **Your task:**
-> 1. Read `index.html`, `styles.css`, `design-taste.md`, and `design-context.md`
-> 2. Process options **one at a time, sequentially** (option 1, then 2, then 3, then 4). For each option:
+> 1. Read `index.html`, `styles-optN.css`, `design-taste.md`, and `design-context.md`
+> 2. For this option only:
 >    a. Replace the placeholder div (`id="placeholder-optN-clean"`) with the full Clean variant HTML
 >    b. Replace `placeholder-optN-polished` with the full Polished variant HTML
->    c. Append that option's color variant CSS to `styles.css` using `.clean .selector` and `.polished .selector` overrides only
->    d. After completing each option, output this exact progress message: `✔ Option N of 4 complete — refresh browser to see it`
-> 3. Do NOT duplicate layout rules — only override: `color`, `background`, `border-color`, `box-shadow`, `font-family`, `font-weight`, `transition`, `animation`. Each variant ≤ 200 lines of CSS.
-> 4. Google Fonts may be added via `@import` at the top of `styles.css`
+>    c. Write this option's color variant CSS to `styles-optN.css` using `.clean .selector` and `.polished .selector` overrides only
+> 3. Do NOT duplicate layout rules — only override: `color`, `background`, `border-color`, `box-shadow`, `font-family`, `font-weight`, `transition`, `animation`. Budget: ≤ 200 lines.
+> 4. Google Fonts may be added via `@import` at the top of `styles-optN.css`
 > 5. No other external dependencies (no CDN links, no icon libraries, no JS libraries)
+> 6. Do NOT touch any other option's placeholders or CSS files — only `placeholder-optN-clean`, `placeholder-optN-polished`, and `styles-optN.css`
 >
-> **Clean (Style A)**: Simple, clean colors from `design-context.md` palette (or Warmth/Precision tokens from `design-taste.md`). Solid fills, clean typography, proper spacing. No gradients, no effects — just color applied to the layout.
+> **Clean (Style A)**: Simple, clean colors from `design-context.md` palette (or Warmth/Precision tokens from `design-taste.md`). System fonts only (`-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif`). Solid fills, clean typography, proper spacing. No gradients, no shadows, no effects — just color applied to the layout.
 >
-> **Polished (Style B)**: Same palette as Clean but elevated: bolder contrasts, refined gradients, enhanced hover effects, CSS animations (staggered fade-in, smooth transitions, micro-interactions). Polished MUST include visible CSS animations: staggered entrance reveals, hover transitions, and micro-interactions on buttons/inputs. Respect `prefers-reduced-motion`. Builds on Clean — not a different theme. Elevation via richer gradients/shadows/motion, not color scheme inversion.
+> **Polished (Style B)**: Must be **visibly different from Clean at first glance** — if someone can't immediately tell which sub-tab they're on, Polished hasn't gone far enough. Specifically:
+> - **Typography**: Use a Google Font pairing (display + body) that differs from Clean's system fonts. Larger headings, tighter letter-spacing on labels.
+> - **Color intensity**: Richer saturation, gradient backgrounds on hero sections/cards, colored section dividers.
+> - **Depth & layering**: Elevated cards with multi-layer shadows, glassmorphism or frosted-glass effects on overlays, subtle background patterns/textures.
+> - **Animation**: Staggered entrance reveals (elements animate in on load with sequential delays), hover scale/lift transitions on cards and buttons, micro-interactions on form inputs (focus glow, checkmark animations), smooth tab transitions. Respect `prefers-reduced-motion`.
+> - **Finishing touches**: Decorative accents (colored top borders on cards, pill-shaped badges, icon backgrounds), refined spacing with more generous whitespace.
+>
+> Polished builds on Clean's palette but elevates it dramatically — not a different theme, but a different level of craft. If Clean is "color applied to wireframe", Polished is "designed and animated product UI".
 >
 > **Rules:**
 > - EXACT same layout/structure as B&W wireframe — only visual treatment changes
@@ -287,9 +304,14 @@ The agent prompt MUST include:
 > - Avoid anti-patterns from `design-taste.md`
 > - No annotation markers on color variants
 
+As each parallel agent returns, the main agent reports to the user:
+> "✔ [Option Name] — Clean + Polished ready. Refresh to see it."
+
+After all 4 return, confirm everything is done.
+
 ### 3f. Report to User (two phases)
 
-**3f-i. After wireframes written (before launching color agent):**
+**3f-i. After wireframes written (before launching color agents):**
 
 Open the generated HTML file: `open wireframe/DDMM-<feature-name>/index.html`
 
@@ -298,12 +320,27 @@ Then tell the user:
 - Which option is recommended and why (1 sentence)
 - Brief summary of each option's UX approach
 - If an optimization goal was provided, highlight which option(s) best serve that goal
-- Note: **"Wireframes are ready in your browser. Color variants (Clean + Polished) are generating now — I'll update you as each option completes."**
 - Print the folder path `wireframe/DDMM-<feature-name>/`
 
-Then launch the foreground color agent (Step 3e).
+**Then decide whether to launch Phase 2:**
 
-**3f-ii. After color agent completes:**
+- If `$ARGUMENTS` explicitly requests both wireframes and visuals (e.g., "wireframe and visuals for...", "create wireframes and visuals", "wireframe and color variants"), add the note **"Color variants (Clean + Polished) are generating now — I'll update you as each option completes."** and proceed directly to Step 3e.
+- Otherwise, ask the user using AskUserQuestion:
+
+> "Wireframes are ready in your browser. Would you like me to generate color variants (Clean + Polished) as well?"
+
+Options:
+- **Yes, generate visuals** — launches Phase 2 visual agents
+- **No, wireframes only** — skip Phase 2, done
+
+If the user chooses "Yes, generate visuals", launch Step 3e. If "No, wireframes only", skip Phase 2 entirely — wireframes are the final output.
+
+**3f-ii. As each parallel agent returns:**
+
+Report progress as each of the 4 agents completes:
+> "✔ [Option Name] — Clean + Polished ready. Refresh to see it."
+
+**3f-iii. After all 4 agents return:**
 
 Tell the user: **"All 4 options now have color variants (Clean + Polished). Refresh your browser to see the final result."**
 
