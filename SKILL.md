@@ -163,12 +163,14 @@ Create an output folder at `wireframe/DDMM-<feature-name>/` where `DDMM` is toda
 The output MUST follow these rules:
 
 #### Structure
-- All CSS in a separate `styles.css` file in the same folder, linked via `<link rel="stylesheet" href="styles.css">` in `<head>`. Do NOT use a `<style>` tag in the HTML.
+- All CSS in a separate `styles.css` file in the same folder, linked via `<link rel="stylesheet" href="styles.css">` in `<head>`. Do NOT use a `<style>` tag in the HTML. Any `@import` statements (e.g., Google Fonts) MUST appear at the very top of `styles.css`, before all other CSS rules. CSS spec requires `@import` to precede other rules — browsers silently ignore `@import` placed after normal rules.
 - All JS inline in a `<script>` tag before `</body>`
 - **Wireframe sub-tab**: No external dependencies (no CDN links, no fonts, no icons libraries). Use system fonts only: `-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif`
 - **Color variant sub-tabs (Style A–B)**: May use Google Fonts via `@import` in the `styles.css` file. Still no other external dependencies (no CDN links, no icon libraries, no JS libraries).
 - **Sub-tab icons**: Each style sub-tab uses an icon from the `icon-park-twotone` set. The SVG markup for all 3 icons is provided below — embed them inline in the HTML. Do NOT load icons from a CDN at runtime.
 - **No dotted or dashed lines**: Do not use dotted or dashed borders, dividers, or separator lines anywhere in the output. Use solid lines (`1px solid`) or whitespace/padding for visual separation instead.
+- **Anchor tags**: Use `href='#'` on all `<a>` tags in wireframes to ensure they are keyboard-focusable and show correct cursor behavior.
+- **CSS architecture**: Use shared base classes for layout structure (grid, flexbox, spacing) and variant-specific classes only for color, typography, and decoration overrides. For example, `.footer-grid` defines the grid structure once, while `.clean .footer-grid` and `.polished .footer-grid` only override colors and fonts. This keeps the CSS DRY and under 800 lines for typical wireframes.
 
 #### Color Palette
 
@@ -278,7 +280,7 @@ Each wireframe option should include functional interactive elements where appro
 - Label interactive elements clearly (what happens when you click?)
 
 #### Annotation System
-Include a subtle annotation layer using small numbered circles (e.g., ①②③) linked to UX notes below each wireframe explaining key interaction decisions.
+Place small numbered markers (①②③) directly on the wireframe elements they reference, positioned as subtle overlays or inline badges. These markers must correspond to the numbered UX notes below the wireframe. The markers should be visible but not visually dominant — use small circles with a light border. Annotation markers are required on the Wireframe sub-tab only. Color variants (Clean, Polished) should not include annotation markers.
 
 #### Colorful UI Variants
 
@@ -323,7 +325,7 @@ diamond-one:
 
 - **Clean (Style A)**: Simple, clean colors applied to the wireframe layout. Uses the project's color palette from `design-context.md` (or the appropriate style tokens from `design-taste.md`) with straightforward solid fills, clean typography, and proper spacing. No gradients, no fancy effects — just the layout brought to life with color. This is the "what if we just shipped this with real colors" variant.
 
-- **Polished (Style B)**: Same design language as Clean but elevated and animated: bolder color contrasts, refined gradients, enhanced hover effects, richer accent colors. CSS animations included — staggered fade-in reveals on load, smooth hover transitions, micro-interactions on buttons/inputs (scale, color shift). All animations respect `prefers-reduced-motion`. This variant is premium, polished, and alive.
+- **Polished (Style B)**: Same design language as Clean but elevated and animated: bolder color contrasts, refined gradients, enhanced hover effects, richer accent colors. CSS animations included — staggered fade-in reveals on load, smooth hover transitions, micro-interactions on buttons/inputs (scale, color shift). All animations respect `prefers-reduced-motion`. This variant is premium, polished, and alive. **Important:** Polished should build on Clean's palette — not switch to a completely different theme (e.g., don't go from light-mode Clean to dark-mode Polished). The elevation should be visible in richer gradients, shadows, and motion — not a wholesale color scheme inversion.
 
 **Rules for all color variants (Style A–B):**
 - Must use the **EXACT same layout/structure** as the B&W wireframe for that option. Same information architecture, same element positions, same content hierarchy. Only the visual treatment changes.
