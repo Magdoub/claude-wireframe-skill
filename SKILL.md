@@ -10,7 +10,7 @@ You operate as two personas across two phases.
 
 **Persona 1 — UX Architect (Phase 1, foreground):** Generates 4 B&W wireframe options exploring information architecture, user flows, and interaction design. Writes `index.html` + `styles.css` with placeholder stubs for color variants, opens in browser immediately.
 
-**Persona 2 — Visual Designer (Phase 2, 4 parallel foreground Task agents):** Launched as 4 parallel foreground Task agents immediately after Phase 1 — one per option, each named "[Option Name]: Visual Designer". Each agent reads the generated files + `design-taste.md` + `design-context.md`, then edits `index.html` and writes its own `styles-optN.css` to replace placeholders with 2 colorful production-quality UI renderings (Clean, Polished). The layout is locked; only the visual treatment changes.
+**Persona 2 — Visual Designer (Phase 2, 4 parallel foreground Task agents):** Launched as 4 parallel foreground Task agents immediately after Phase 1 — one per option, each named "[Option Name]: Visual Designer". Each agent reads `index.html`, its own `styles-optN.css`, `design-taste.md`, and `design-context.md`, then replaces placeholders with 2 colorful production-quality UI renderings (Clean, Polished). The layout is locked; only the visual treatment changes.
 
 Together, these two phases produce self-contained HTML files. Each file presents 4 distinct UX approaches — Option 1 (safe) extends the existing design system, plus Options 2–4 explore different interaction philosophies. Each option gets a short 1-3 word name, and the wireframe recommends the best fit. The user sees B&W wireframes in ~40-60s, then gets progress updates as each option's color variants complete in parallel.
 
@@ -134,6 +134,20 @@ If the user provides a goal (or one was extracted from `$ARGUMENTS`), use it to:
 
 If the user skips, proceed normally without a specific optimization lens.
 
+### 3b-ii. Scope: Wireframes only or wireframes + visuals?
+
+If `$ARGUMENTS` explicitly requests both wireframes and visuals (e.g., "wireframe and visuals for...", "create wireframes and visuals", "wireframe and color variants"), set scope to **wireframes+visuals** and skip this question.
+
+If `$ARGUMENTS` only says "wireframe" or doesn't mention visuals, ask using AskUserQuestion:
+
+> "Would you like wireframes only, or wireframes with color variants (Clean + Polished)?"
+
+Options:
+- **Wireframes + visuals (Recommended)** — generates B&W wireframes, then Clean + Polished color variants
+- **Wireframes only** — generates B&W wireframes only, skips color phase
+
+Store the answer. Use it in Step 3f to decide whether to launch Phase 2.
+
 ### 3c. Clarify (if needed)
 
 Ask at most 1-2 clarifying questions about the feature using AskUserQuestion. Only ask if there's genuine ambiguity. Examples of good clarifying questions:
@@ -196,13 +210,29 @@ No introductory text above wireframes. HTML starts directly with the title bar a
 │  [One short sentence]                            │
 │     ⬡        🖌       ◇                          │
 │  Wireframe  Clean  Polished                      │
-│  ┌────────────────────────────────────────┐      │
-│  │  [Content for selected sub-tab]        │      │
-│  └────────────────────────────────────────┘      │
+│  ┌──────────────────────────────────────────┐    │
+│  │  ● ● ●              yourapp.com  ─ □ ✕  │    │
+│  │  ┌────────────────────────────────────┐  │    │
+│  │  │                                    │  │    │
+│  │  │  [Content for selected sub-tab]    │  │    │
+│  │  │                                    │  │    │
+│  │  └────────────────────────────────────┘  │    │
+│  └──────────────────────────────────────────┘    │
 └─────────────────────────────────────────────────┘
 ```
 
 Each main tab shows its own option panel with sub-tabs. Summary tab shows scoring table + recommendation. Only one panel visible at a time.
+
+#### Browser / Device Frame
+
+Each option's sub-tab content (Wireframe, Clean, Polished) MUST be wrapped in a simulated **browser window** frame. This makes the output feel like a contained design artifact, not a live webpage.
+
+**Browser frame rules:**
+- **Max width**: `max-width: 900px; margin: 0 auto;` — designs must NOT stretch to fill the full viewport on wide screens.
+- **Chrome bar**: Light gray bar (`#f0f0f0` for wireframe, colored for variants) with 3 dots (gray circles in wireframe, red/yellow/green in color variants) and a URL-like text (e.g., `yourapp.com/feature-name`).
+- **Content area**: `overflow: hidden` — no content may visually escape the browser frame. No negative margins, absolute positioning, or transforms that push content outside the frame boundaries.
+- **Mobile frame**: If `design-context.md` target platform is **Mobile**, use a phone frame instead (rounded rect with notch/status bar, `max-width: 390px`).
+- Frame is purely decorative CSS — no extra dependencies.
 
 **Title bar**: Feature name + project name (one line) + `★ Recommended: Option N`.
 
@@ -285,16 +315,23 @@ Each agent's prompt MUST include:
 > 5. No other external dependencies (no CDN links, no icon libraries, no JS libraries)
 > 6. Do NOT touch any other option's placeholders or CSS files — only `placeholder-optN-clean`, `placeholder-optN-polished`, and `styles-optN.css`
 >
+> **CSS Anti-Patterns — MUST avoid:**
+>
+> 1. **Decorative borders overlapping content**: Never add `border-top`, `border-left`, or decorative lines to a container without ensuring adequate `padding` or `margin` on the same side. If you add `border-top: 3px solid`, add at least `padding-top: 16px` so content doesn't overlap the line. Test: would any child element touch or overlap the border?
+> 2. **Full-width sections clipped by parent containers**: If the wireframe has a `max-width` container but a section (hero, masthead, banner, nav bar) should be full-width, use `width: 100vw; margin-left: calc(-50vw + 50%);` or break out of the container. Never leave a full-width section visually cut off at the sides. Test: does any section appear to "float" with gaps on the left/right edges?
+> 3. **Flat backgrounds where gradients are specified**: When the Polished spec calls for gradients, use high-contrast gradient stops (e.g., `linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 50%, #a5d6a7 100%)`) — not near-identical colors that appear flat. The gradient must be perceptible at a glance. Test: screenshot it — can you see the gradient without squinting?
+> 4. **Content escaping browser frame**: All variant content must stay within the browser frame wrapper. Use `overflow: hidden` on the frame content area. No negative margins, absolute positioning, or transforms that push content outside the frame boundaries.
+>
 > **Clean (Style A)**: Simple, clean colors from `design-context.md` palette (or Warmth/Precision tokens from `design-taste.md`). System fonts only (`-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif`). Solid fills, clean typography, proper spacing. No gradients, no shadows, no effects — just color applied to the layout.
 >
 > **Polished (Style B)**: Must be **visibly different from Clean at first glance** — if someone can't immediately tell which sub-tab they're on, Polished hasn't gone far enough. Specifically:
 > - **Typography**: Use a Google Font pairing (display + body) that differs from Clean's system fonts. Larger headings, tighter letter-spacing on labels.
-> - **Color intensity**: Richer saturation, gradient backgrounds on hero sections/cards, colored section dividers.
+> - **Color intensity**: Richer saturation. **All major sections (heroes, mastheads, banners, card headers) MUST use visible gradients** — not flat solid colors. Use gradient stops with ≥15% lightness difference (e.g., `#1a73e8` → `#4a9af5`, not `#e8f5e9` → `#e6f4ee`). Colored section dividers.
 > - **Depth & layering**: Elevated cards with multi-layer shadows, glassmorphism or frosted-glass effects on overlays, subtle background patterns/textures.
 > - **Animation**: Staggered entrance reveals (elements animate in on load with sequential delays), hover scale/lift transitions on cards and buttons, micro-interactions on form inputs (focus glow, checkmark animations), smooth tab transitions. Respect `prefers-reduced-motion`.
 > - **Finishing touches**: Decorative accents (colored top borders on cards, pill-shaped badges, icon backgrounds), refined spacing with more generous whitespace.
 >
-> Polished builds on Clean's palette but elevates it dramatically — not a different theme, but a different level of craft. If Clean is "color applied to wireframe", Polished is "designed and animated product UI".
+> Polished MUST use the color palette from `design-context.md` as its foundation — do not invent new brand colors. Elevate through gradients, depth, and animation applied to the existing palette. If Clean is "color applied to wireframe", Polished is "designed and animated product UI using the same design system".
 >
 > **Rules:**
 > - EXACT same layout/structure as B&W wireframe — only visual treatment changes
@@ -302,6 +339,7 @@ Each agent's prompt MUST include:
 > - Apply quality checks from `design-taste.md` (swap, squint, signature, token tests)
 > - Consumer features → Warmth & Approachability tokens; admin/dashboard → Precision & Density tokens
 > - Avoid anti-patterns from `design-taste.md`
+> - Both Clean and Polished MUST use colors from `design-context.md` palette — no invented brand colors
 > - No annotation markers on color variants
 
 As each parallel agent returns, the main agent reports to the user:
@@ -322,18 +360,10 @@ Then tell the user:
 - If an optimization goal was provided, highlight which option(s) best serve that goal
 - Print the folder path `wireframe/DDMM-<feature-name>/`
 
-**Then decide whether to launch Phase 2:**
+**Then decide whether to launch Phase 2 (using the scope stored in Step 3b-ii):**
 
-- If `$ARGUMENTS` explicitly requests both wireframes and visuals (e.g., "wireframe and visuals for...", "create wireframes and visuals", "wireframe and color variants"), add the note **"Color variants (Clean + Polished) are generating now — I'll update you as each option completes."** and proceed directly to Step 3e.
-- Otherwise, ask the user using AskUserQuestion:
-
-> "Wireframes are ready in your browser. Would you like me to generate color variants (Clean + Polished) as well?"
-
-Options:
-- **Yes, generate visuals** — launches Phase 2 visual agents
-- **No, wireframes only** — skip Phase 2, done
-
-If the user chooses "Yes, generate visuals", launch Step 3e. If "No, wireframes only", skip Phase 2 entirely — wireframes are the final output.
+- If scope is **wireframes+visuals**: add the note **"Color variants (Clean + Polished) are generating now — I'll update you as each option completes."** and proceed directly to Step 3e.
+- If scope is **wireframes-only**: skip Phase 2 entirely — wireframes are the final output.
 
 **3f-ii. As each parallel agent returns:**
 
@@ -342,7 +372,13 @@ Report progress as each of the 4 agents completes:
 
 **3f-iii. After all 4 agents return:**
 
-Tell the user: **"All 4 options now have color variants (Clean + Polished). Refresh your browser to see the final result."**
+Re-open the HTML file so the user sees the final result:
+
+```
+open wireframe/DDMM-<feature-name>/index.html
+```
+
+Tell the user: **"All 4 options now have color variants (Clean + Polished). The page has been re-opened with the final result."**
 
 ## Step 4: Update Design Context
 
