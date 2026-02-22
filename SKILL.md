@@ -165,6 +165,7 @@ The HTML file MUST follow these rules:
 - All JS inline in a `<script>` tag before `</body>`
 - **Wireframe sub-tab**: No external dependencies (no CDN links, no fonts, no icons libraries). Use system fonts only: `-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif`
 - **Color variant sub-tabs (Style A–C)**: May use Google Fonts via `@import` in the `<style>` tag. Still no other external dependencies (no CDN links, no icon libraries, no JS libraries).
+- **Sub-tab icons**: Each style sub-tab uses an icon from the `icon-park-twotone` set. The SVG markup for all 4 icons is provided below — embed them inline in the HTML. Do NOT load icons from a CDN at runtime.
 
 #### Color Palette
 
@@ -196,9 +197,9 @@ Do NOT generate any introductory text, preamble, or explanation above the wirefr
 │                                                   │
 │  OPTION 1: Safe Option                            │
 │  [One short sentence]                             │
-│  ┌──────────┬──────────┬────────────┬────────────┬────────────┐ │
-│  │Wireframe │🎨 Clean │🌈 Polished │✨ Animated │ │
-│  └──────────┴──────────┴────────────┴────────────┴────────────┘ │
+│     ⬡           🖌          ◇           ⚡          │
+│  Wireframe    Clean     Polished    Animated       │
+│  ─────────                                         │
 │  ┌─────────────────────────────────────────┐     │
 │  │                                         │     │
 │  │  [Content for selected sub-tab]         │     │
@@ -211,9 +212,9 @@ Do NOT generate any introductory text, preamble, or explanation above the wirefr
 │                                                   │
 │  OPTION 2: [Short Name]                           │
 │  [One short sentence]                             │
-│  ┌──────────┬──────────┬────────────┬────────────┬────────────┐ │
-│  │Wireframe │🎨 Clean │🌈 Polished │✨ Animated │ │
-│  └──────────┴──────────┴────────────┴────────────┴────────────┘ │
+│     ⬡           🖌          ◇           ⚡          │
+│  Wireframe    Clean     Polished    Animated       │
+│  ─────────                                         │
 │  ┌─────────────────────────────────────────┐     │
 │  │                                         │     │
 │  │  [Content for selected sub-tab]         │     │
@@ -304,15 +305,51 @@ Include a subtle annotation layer using small numbered circles (e.g., ①②③)
 
 Each wireframe option includes a secondary row of sub-tabs below the option title and description:
 
-**Sub-tabs**: `Wireframe | 🎨 Clean | 🌈 Polished | ✨ Animated`
+**Sub-tabs** — displayed as an iOS-style icon tab bar:
+
+| Tab | Icon | Active Color | Hex |
+|---|---|---|---|
+| Wireframe | `sketch` | Black | `#000000` |
+| Clean | `paint` | Blue | `#2196F3` |
+| Polished | `diamond-one` | Green | `#4CAF50` |
+| Animated | `lightning` | Orange | `#FF9800` |
+
+**Tab bar behavior:**
+- Layout: horizontal bar, 4 equally-spaced items, each showing a 24×24 SVG icon above a 12px label (system font)
+- Active tab: icon + label in the tab's signature color, plus a 2px colored underline bar beneath
+- Inactive tabs: icon + label in `#999999`
+- "Wireframe" is active by default when switching to any option
+- Clicking a tab colors it and grays out the others
+
+**Inline SVG icons** (embed these exactly in the generated HTML — they use `currentColor` so set `color` on the parent to control icon color):
+
+sketch:
+```svg
+<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 48 48"><defs><mask id="ipTsketch"><g fill="#555" stroke="#fff" stroke-linejoin="round" stroke-width="4"><rect width="36" height="36" x="6" y="6" rx="3"/><path stroke-linecap="round" d="M18.6 16h10.8l3.6 4.706L24 32l-9-11.294z"/></g></mask></defs><path fill="currentColor" d="M0 0h48v48H0z" mask="url(#ipTsketch)"/></svg>
+```
+
+paint:
+```svg
+<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 48 48"><defs><mask id="ipTpaint"><g fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="4"><path d="m15.536 22.898l9.899 9.9m-9.899-9.9L7.05 31.383a7 7 0 1 0 9.9 9.9l8.485-8.486m-9.899 0l-4.243 4.243"/><path fill="#555" d="m25.435 32.797l14.907-6.432c2.688-1.16 3.809-4.379 2.086-6.745C38.264 13.903 32.65 8.89 28.51 5.823c-2.29-1.696-5.33-.64-6.46 1.975l-6.514 15.1z"/></g></mask></defs><path fill="currentColor" d="M0 0h48v48H0z" mask="url(#ipTpaint)"/></svg>
+```
+
+diamond-one:
+```svg
+<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 48 48"><defs><mask id="ipTdiamond"><path fill="#555" stroke="#fff" stroke-width="4" d="M5.939 13.934L23.036 4.53a2 2 0 0 1 1.928 0l17.097 9.404a2 2 0 0 1 .683 2.888l-17.098 24.79a2 2 0 0 1-3.292 0L5.256 16.823a2 2 0 0 1 .683-2.888Z"/></mask></defs><path fill="currentColor" d="M0 0h48v48H0z" mask="url(#ipTdiamond)"/></svg>
+```
+
+lightning:
+```svg
+<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 48 48"><defs><mask id="ipTlightning"><path fill="#555" stroke="#fff" stroke-linejoin="round" stroke-width="4" d="M19 4h18L26 18h15L17 44l5-19H8z"/></mask></defs><path fill="currentColor" d="M0 0h48v48H0z" mask="url(#ipTlightning)"/></svg>
+```
 
 - **Wireframe** (default active): The existing B&W wireframe — unchanged from the rules above. Uses strict grayscale palette, system fonts only, no external dependencies.
 
-- **🎨 Clean (Style A)**: Simple, clean colors applied to the wireframe layout. Uses the project's color palette from `design-context.md` (or the appropriate style tokens from `design-taste.md`) with straightforward solid fills, clean typography, and proper spacing. No gradients, no fancy effects — just the layout brought to life with color. This is the "what if we just shipped this with real colors" variant.
+- **Clean (Style A)**: Simple, clean colors applied to the wireframe layout. Uses the project's color palette from `design-context.md` (or the appropriate style tokens from `design-taste.md`) with straightforward solid fills, clean typography, and proper spacing. No gradients, no fancy effects — just the layout brought to life with color. This is the "what if we just shipped this with real colors" variant.
 
-- **🌈 Polished (Style B)**: Same design language as Clean but elevated: bolder color contrasts, refined gradients, enhanced hover effects, richer accent colors. More premium, more considered feel. Subtle depth cues like layered shadows, refined border treatments, and polished micro-interactions on hover.
+- **Polished (Style B)**: Same design language as Clean but elevated: bolder color contrasts, refined gradients, enhanced hover effects, richer accent colors. More premium, more considered feel. Subtle depth cues like layered shadows, refined border treatments, and polished micro-interactions on hover.
 
-- **✨ Animated (Style C)**: Builds on the Polished variant and adds CSS animations: staggered fade-in reveals on load, smooth hover transitions, scroll-triggered effects (using `IntersectionObserver`), micro-interactions on buttons/inputs (scale, color shift, ripple). Focus on motion and delight. All animations must respect `prefers-reduced-motion`. This variant should feel alive and responsive to interaction.
+- **Animated (Style C)**: Builds on the Polished variant and adds CSS animations: staggered fade-in reveals on load, smooth hover transitions, scroll-triggered effects (using `IntersectionObserver`), micro-interactions on buttons/inputs (scale, color shift, ripple). Focus on motion and delight. All animations must respect `prefers-reduced-motion`. This variant should feel alive and responsive to interaction.
 
 **Rules for all color variants (Style A–C):**
 - Must use the **EXACT same layout/structure** as the B&W wireframe for that option. Same information architecture, same element positions, same content hierarchy. Only the visual treatment changes.
@@ -326,7 +363,7 @@ Each wireframe option includes a secondary row of sub-tabs below the option titl
 - The sub-tab switching is handled by the same JS that handles the main option tabs. Each sub-tab shows/hides a `<div>` containing that variant's content.
 - The "Wireframe" sub-tab is active by default when switching to any option.
 - Each variant's content is a complete rendering of the same layout — not a partial or placeholder.
-- The sub-tab bar should be visually lighter than the main option tabs (smaller font, less prominent) to maintain clear hierarchy.
+- The sub-tab icon bar should be visually lighter than the main option tabs — 24px icons, 12px labels, compact spacing — to maintain clear visual hierarchy between option-level and style-variant navigation.
 
 ### 3e. Report to User
 
