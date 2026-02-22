@@ -8,9 +8,9 @@ argument-hint: "[feature-description]"
 
 You operate as two personas across two phases.
 
-**Persona 1 — UX Architect (Phase 1, foreground):** Generates 4 B&W wireframe options exploring information architecture, user flows, and interaction design. Writes `index.html` + `styles.css` with placeholder stubs for color variants, opens in browser immediately.
+**Persona 1 — UX Architect (Phase 1, foreground):** Generates 4 B&W wireframe options exploring information architecture, user flows, and interaction design. Writes `index.html` + `styles.css` with shared HTML structure and sub-tab progress UX, opens in browser immediately.
 
-**Persona 2 — Visual Designer (Phase 2, 4 parallel foreground Task agents):** Launched as 4 parallel foreground Task agents immediately after Phase 1 — one per option, each named "[Option Name]: Visual Designer". Each agent reads `index.html`, its own `styles-optN.css`, `design-taste.md`, and `design-context.md`, then replaces placeholders with 2 colorful production-quality UI renderings (Clean, Polished). The layout is locked; only the visual treatment changes.
+**Persona 2 — Visual Designer (Phase 2, 4 parallel foreground Task agents):** Launched as 4 parallel foreground Task agents immediately after Phase 1 — one per option, each named "[Option Name]: Visual Designer". Each agent reads `index.html`, its own `styles-optN.css`, `design-taste.md`, and `design-context.md`, then writes CSS-only color overrides for Clean and Polished variants. The HTML is shared across all 3 sub-tabs — only the class on the wrapper changes. The layout is locked; only the visual treatment changes.
 
 Together, these two phases produce self-contained HTML files. Each file presents 4 distinct UX approaches — Option 1 (safe) extends the existing design system, plus Options 2–4 explore different interaction philosophies. Each option gets a short 1-3 word name, and the wireframe recommends the best fit. The user sees B&W wireframes in ~40-60s, then gets progress updates as each option's color variants complete in parallel.
 
@@ -163,15 +163,7 @@ Create an output folder at `wireframe/DDMM-<feature-name>/` where `DDMM` is toda
 - `styles.css` — all wireframe CSS (linked via `<link rel="stylesheet" href="styles.css">` in `<head>`)
 - `styles-opt1.css`, `styles-opt2.css`, `styles-opt3.css`, `styles-opt4.css` — empty files for Phase 2 color variant CSS (each linked via `<link rel="stylesheet">` in `<head>` after `styles.css`)
 
-Generate **4 B&W wireframe options** (Option 1: Safe + Options 2–4: exploratory). The Clean and Polished sub-tabs render a placeholder `<div>` with this centered message:
-
-```
-✦ Visual styles generating — refresh in ~60 seconds
-```
-
-Placeholder styling: `text-align: center; color: #999; background: #f5f5f5; padding: 48px; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; font-size: 14px; border-radius: 8px; margin: 24px 0;`
-
-Give each placeholder div a unique id following the pattern `placeholder-optN-clean` / `placeholder-optN-polished` (e.g., `placeholder-opt1-clean`) so the background agent can find and replace them.
+Generate **4 B&W wireframe options** (Option 1: Safe + Options 2–4: exploratory). Phase 1 renders each option's content once inside a `<div class="browser-frame wireframe" id="frame-optN">`. Sub-tab JS toggles the wrapper class between `wireframe`, `clean`, and `polished` — no separate content panels. Annotations (`.wf-annotations`) are hidden via CSS when class is `clean` or `polished`.
 
 The output MUST follow these rules:
 
@@ -181,7 +173,8 @@ The output MUST follow these rules:
 - No external dependencies — no CDN links, no fonts, no icon libraries. System fonts only: `-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif`
 - No dotted or dashed borders — use solid lines (`1px solid`) or whitespace for separation.
 - Use `href='#'` on all `<a>` tags.
-- **CSS architecture**: Shared base classes for layout (grid, flexbox, spacing). Variant-specific classes (`.clean .selector`, `.polished .selector`) only override: `color`, `background`, `border-color`, `box-shadow`, `font-family`, `font-weight`, `transition`, `animation`. Do NOT duplicate layout rules in variant CSS. Budget: wireframe CSS ≤ 500 lines.
+- **CSS architecture**: One HTML block per option shared across all 3 sub-tabs. The `browser-frame` wrapper gets a class toggled by JS: `.wireframe` (default), `.clean`, or `.polished`. Base layout in `styles.css`. Variant overrides in `styles-optN.css` using `.clean .selector` and `.polished .selector`. Annotations hidden via `.clean .wf-annotations, .polished .wf-annotations { display: none; }`. Browser chrome dots styled per variant via CSS. Do NOT create separate sub-panel divs for each variant — there is one panel per option. Variant-specific classes only override: `color`, `background`, `border-color`, `box-shadow`, `font-family`, `font-weight`, `transition`, `animation`. Do NOT duplicate layout rules in variant CSS. Budget: wireframe CSS ≤ 500 lines.
+- **Annotation hiding rule** (MUST be in `styles.css`): `.clean .wf-annotations, .polished .wf-annotations { display: none; }` — hides the entire annotations block (markers + explanatory text) whenever the wrapper has `.clean` or `.polished` class.
 
 #### Sub-tab icons (embed inline — use `currentColor`):
 
@@ -267,15 +260,60 @@ Small numbered markers (①②③) on wireframe elements, corresponding to UX no
 
 **Sub-tabs** — iOS-style icon tab bar (3 items: Wireframe, Clean, Polished):
 
-| Tab | Icon | Active Color |
-|---|---|---|
-| Wireframe | `sketch` | `#000000` |
-| Clean | `paint` | `#2196F3` |
-| Polished | `diamond-one` | `#4CAF50` |
+| Tab | Icon | No content yet | Ready | Hover (ready) | Active (selected) |
+|---|---|---|---|---|---|
+| Wireframe | `sketch` | — | — | — | `#000` + 2px bottom border |
+| Clean | `paint` | `#999` (gray) | `#64B5F6` (light blue) | `#1E88E5` (medium blue) | `#1565C0` (dark blue) + 2px bottom border |
+| Polished | `diamond-one` | `#999` (gray) | `#81C784` (light green) | `#43A047` (medium green) | `#2E7D32` (dark green) + 2px bottom border |
+
+Wireframe icon: always `#000` when active, `#666` otherwise. No progress states needed.
 
 - 24×24 SVG icon above 12px label (system font), 2px colored underline when active
-- Inactive: `#999`. Wireframe active by default.
 - Sub-tab bar visually lighter than main tabs — compact spacing for clear hierarchy.
+- Clean and Polished sub-tabs start gray (`#999`) and transition to their active colors when CSS loads.
+
+**"In progress" badge on Clean/Polished sub-tabs:**
+
+Phase 1 must add a small badge element to each Clean and Polished sub-tab button:
+
+```html
+<span class="sub-tab-badge">generating...</span>
+```
+
+Styled as: small pill badge (`font-size: 9px; background: #f0f0f0; color: #999; border-radius: 8px; padding: 1px 6px;`) positioned above or next to the icon.
+
+**`onload` mechanism for variant CSS files:**
+
+Each variant CSS `<link>` tag in `<head>` must include an `onload` handler:
+
+```html
+<link rel="stylesheet" href="styles-opt1.css" onload="optionReady(1)">
+<link rel="stylesheet" href="styles-opt2.css" onload="optionReady(2)">
+<link rel="stylesheet" href="styles-opt3.css" onload="optionReady(3)">
+<link rel="stylesheet" href="styles-opt4.css" onload="optionReady(4)">
+```
+
+The `optionReady(n)` JS function (included in Phase 1's inline `<script>`):
+1. Removes `.sub-tab-badge` elements from option N's Clean and Polished sub-tabs
+2. Adds `.variant-ready` class to those sub-tab buttons (triggers CSS color change from gray to blue/green)
+3. Tracks how many options are ready. When all 4 are ready, shows the completion banner.
+
+**Completion banner:**
+
+Phase 1 includes a hidden banner div at the top of the page:
+
+```html
+<div class="completion-banner" id="completion-banner" style="display:none;">
+  ✦ Visual designs complete — all options now have Clean + Polished variants
+  <button onclick="this.parentElement.style.display='none'" style="float:right;background:none;border:none;cursor:pointer;font-size:16px;">×</button>
+</div>
+```
+
+Banner styling: full-width, subtle background (`#f0faf0`), centered text, `font-size: 13px`, `padding: 10px`, dismissible with × button. Auto-hides after 8 seconds via `setTimeout`.
+
+**Sub-tab JS behavior:**
+
+Sub-tab clicks swap the class on `#frame-optN` between `wireframe`, `clean`, `polished`. No separate content panels — same HTML, different CSS class.
 
 ### 3e. Launch Parallel Color Agents (Phase 2)
 
@@ -297,7 +335,7 @@ All with:
 Each agent's prompt MUST include:
 1. **File paths**: Full absolute paths to `index.html`, the agent's own `styles-optN.css`, `design-taste.md`, and `design-context.md`
 2. **Visual Designer persona**: The instructions below
-3. **Scope**: "You are responsible for Option N only. Replace `placeholder-optN-clean` and `placeholder-optN-polished` in `index.html`. Write all your CSS to `styles-optN.css`. Do not touch any other option's placeholders or CSS files."
+3. **Scope**: "Write all CSS to `styles-optN.css`. Do NOT modify `index.html`."
 4. **CSS budget**: ≤ 200 lines in `styles-optN.css`
 
 **Visual Designer persona for each agent prompt:**
@@ -306,14 +344,17 @@ Each agent's prompt MUST include:
 >
 > **Your task:**
 > 1. Read `index.html`, `styles-optN.css`, `design-taste.md`, and `design-context.md`
-> 2. For this option only:
->    a. Replace the placeholder div (`id="placeholder-optN-clean"`) with the full Clean variant HTML
->    b. Replace `placeholder-optN-polished` with the full Polished variant HTML
->    c. Write this option's color variant CSS to `styles-optN.css` using `.clean .selector` and `.polished .selector` overrides only
-> 3. Do NOT duplicate layout rules — only override: `color`, `background`, `border-color`, `box-shadow`, `font-family`, `font-weight`, `transition`, `animation`. Budget: ≤ 200 lines.
-> 4. Google Fonts may be added via `@import` at the top of `styles-optN.css`
-> 5. No other external dependencies (no CDN links, no icon libraries, no JS libraries)
-> 6. Do NOT touch any other option's placeholders or CSS files — only `placeholder-optN-clean`, `placeholder-optN-polished`, and `styles-optN.css`
+> 2. Study the wireframe HTML structure for Option N (inside `#frame-optN`)
+> 3. Write CSS to `styles-optN.css` with:
+>    a. `.clean .selector` rules for the Clean variant
+>    b. `.polished .selector` rules for the Polished variant
+>    c. Browser chrome coloring: `.clean .browser-dots span:nth-child(1) { background: #ff5f57; }` etc.
+>    d. Use `::before` / `::after` pseudo-elements for decorative accents in Polished (badges, overlays, accent borders)
+> 4. Do NOT modify `index.html` — CSS is your only output
+> 5. Google Fonts allowed via `@import` at top of `styles-optN.css`
+> 6. Budget: ≤ 200 lines
+>
+> Do NOT duplicate layout rules — only override: `color`, `background`, `border-color`, `box-shadow`, `font-family`, `font-weight`, `transition`, `animation`.
 >
 > **CSS Anti-Patterns — MUST avoid:**
 >
@@ -329,7 +370,7 @@ Each agent's prompt MUST include:
 > - **Color intensity**: Richer saturation. **All major sections (heroes, mastheads, banners, card headers) MUST use visible gradients** — not flat solid colors. Use gradient stops with ≥15% lightness difference (e.g., `#1a73e8` → `#4a9af5`, not `#e8f5e9` → `#e6f4ee`). Colored section dividers.
 > - **Depth & layering**: Elevated cards with multi-layer shadows, glassmorphism or frosted-glass effects on overlays, subtle background patterns/textures.
 > - **Animation**: Staggered entrance reveals (elements animate in on load with sequential delays), hover scale/lift transitions on cards and buttons, micro-interactions on form inputs (focus glow, checkmark animations), smooth tab transitions. Respect `prefers-reduced-motion`.
-> - **Finishing touches**: Decorative accents (colored top borders on cards, pill-shaped badges, icon backgrounds), refined spacing with more generous whitespace.
+> - **Finishing touches**: Decorative accents via `::before`/`::after` pseudo-elements (colored top borders on cards, pill-shaped badges, icon backgrounds), refined spacing with more generous whitespace.
 >
 > Polished MUST use the color palette from `design-context.md` as its foundation — do not invent new brand colors. Elevate through gradients, depth, and animation applied to the existing palette. If Clean is "color applied to wireframe", Polished is "designed and animated product UI using the same design system".
 >
@@ -340,10 +381,10 @@ Each agent's prompt MUST include:
 > - Consumer features → Warmth & Approachability tokens; admin/dashboard → Precision & Density tokens
 > - Avoid anti-patterns from `design-taste.md`
 > - Both Clean and Polished MUST use colors from `design-context.md` palette — no invented brand colors
-> - No annotation markers on color variants
+> - No annotation markers on color variants — annotations are hidden via CSS class toggle
 
 As each parallel agent returns, the main agent reports to the user:
-> "✔ [Option Name] — Clean + Polished ready. Refresh to see it."
+> "✔ [Option Name] — Clean + Polished ready."
 
 After all 4 return, confirm everything is done.
 
@@ -368,7 +409,7 @@ Then tell the user:
 **3f-ii. As each parallel agent returns:**
 
 Report progress as each of the 4 agents completes:
-> "✔ [Option Name] — Clean + Polished ready. Refresh to see it."
+> "✔ [Option Name] — Clean + Polished ready."
 
 **3f-iii. After all 4 agents return:**
 
@@ -379,6 +420,8 @@ open wireframe/DDMM-<feature-name>/index.html
 ```
 
 Tell the user: **"All 4 options now have color variants (Clean + Polished). The page has been re-opened with the final result."**
+
+Note: Do not include "Refresh your browser" language — the in-page `optionReady()` mechanism and completion banner handle live notification automatically.
 
 ## Step 4: Update Design Context
 
