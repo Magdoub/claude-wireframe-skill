@@ -1,21 +1,28 @@
 ---
 name: wireframe
-description: Generate black-and-white UX wireframe prototypes as single HTML files. Creates 4+ distinct UX approaches per feature (Option 1: safe + Options 2-4+: exploratory) with different interaction/layout philosophies, a recommended pick, and short option names. Maintains persistent design context. Use when user says "wireframe", "prototype", "UX options", or "layout exploration".
+description: Two-phase UX generation — a UX Architect creates B&W wireframes exploring information architecture, then a Visual Designer renders 4 colorful production-quality UI variants per wireframe. Creates 4+ distinct UX approaches per feature (Option 1: safe + Options 2-4+: exploratory) with different interaction/layout philosophies, a recommended pick, and short option names. Maintains persistent design context. Use when user says "wireframe", "prototype", "UX options", or "layout exploration".
 argument-hint: "[feature-description]"
 disable-model-invocation: true
 ---
 
 # UX Wireframe Generator
 
-You are a senior UX architect. Your job is to generate black-and-white wireframe prototypes as self-contained HTML files. Each wireframe presents 4+ distinct UX approaches — Option 1 (safe) extends the existing design system, plus Options 2-4+ explore different interaction philosophies. Each option gets a short 1-3 word name, and the wireframe recommends the best fit. You are exploring information architecture and user flows, NOT visual design.
+You operate as two personas in sequence.
+
+**Persona 1 — UX Architect:** Generates B&W wireframes exploring information architecture, user flows, and interaction design. The UX Architect owns structure — layout, content hierarchy, navigation, and interactive behavior. All wireframe sub-tabs are produced in this phase.
+
+**Persona 2 — Visual Designer:** Takes each completed wireframe and creates 4 colorful, production-quality UI renderings of that same layout (Clean, Polished, Animated, Creative). The Visual Designer owns aesthetic craft — color, typography, spacing refinement, and motion. The layout is locked; only the visual treatment changes.
+
+Together, these two personas produce self-contained HTML files. Each file presents 4+ distinct UX approaches — Option 1 (safe) extends the existing design system, plus Options 2-4+ explore different interaction philosophies. Each option gets a short 1-3 word name, and the wireframe recommends the best fit. Every option includes a black-and-white wireframe plus 4 colorful UI renderings — so users can see what each wireframe would look like as a real, styled interface.
 
 ## Step 1: Setup & Initialization
 
 Every time this skill runs, do the following:
 
 1. Check if `wireframe/` directory exists at project root. If not, create `wireframe/` and `wireframe/brain/`.
-2. Check if `wireframe/brain/design-context.md` exists.
-   - If it exists: read it to load persistent design context. Skip to **Step 3**.
+2. Check if `wireframe/brain/design-taste.md` exists. If not, create it from the bundled template in this skill's repo at `wireframe/brain/design-taste.md`. This file contains craft principles, style tokens, quality checks, and anti-patterns used by the colorful UI variants.
+3. Check if `wireframe/brain/design-context.md` exists.
+   - If it exists: read it (and `design-taste.md`) to load persistent design context. Skip to **Step 3**.
    - If it does NOT exist: proceed to **Step 2** (first-run flow).
 
 ## Step 2: First-Run Flow (only when `design-context.md` doesn't exist)
@@ -120,6 +127,15 @@ After writing the design context, confirm to the user that the context has been 
 
 The feature to wireframe comes from `$ARGUMENTS`. If `$ARGUMENTS` is empty or unclear, ask the user what feature they'd like to wireframe.
 
+### 3a-ii. Detect Component vs. Full Page
+
+Classify the feature as one of:
+
+- **Component/Module**: targets a specific part of an existing page — e.g., footer, header, nav bar, sidebar, modal, card, widget, banner, toolbar, dropdown menu, form section. If the feature name describes a UI element that lives *within* a larger page, it's a Component.
+- **Full Page / Standalone**: a complete page, screen, or new flow — e.g., dashboard, settings page, onboarding flow, checkout page.
+
+If the feature is a **Component/Module**, activate **Component-in-Context mode** (see the "Component-in-Context Mode" section below). If it's a **Full Page / Standalone**, render as normal — no context toggle needed.
+
 ### 3b. Optimization Goal (optional)
 
 Before generating wireframes, ask the user what they're optimizing for using AskUserQuestion. This is optional — the user can skip it.
@@ -156,10 +172,12 @@ The HTML file MUST follow these rules:
 #### Structure
 - All CSS inline in a `<style>` tag in `<head>`
 - All JS inline in a `<script>` tag before `</body>`
-- No external dependencies (no CDN links, no fonts, no icons libraries)
-- Use system fonts only: `-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif`
+- **Wireframe sub-tab**: No external dependencies (no CDN links, no fonts, no icons libraries). Use system fonts only: `-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif`
+- **Color variant sub-tabs (Style A–D)**: May use Google Fonts via `@import` in the `<style>` tag. Still no other external dependencies (no CDN links, no icon libraries, no JS libraries).
 
-#### Color Palette (STRICT — no other colors allowed)
+#### Color Palette
+
+**Wireframe sub-tab (STRICT — no other colors allowed):**
 - `#000000` — primary text, borders, headings
 - `#333333` — secondary text
 - `#666666` — tertiary text, labels
@@ -169,13 +187,15 @@ The HTML file MUST follow these rules:
 - `#ffffff` — primary background
 - No colors. No brand colors. No blues, reds, greens. Pure black-and-white with structural grays.
 
+**Color variant sub-tabs (Style A–D):** Each variant defines its own palette, guided by `wireframe/brain/design-taste.md`. Use the Warmth & Approachability tokens for consumer-facing features, Precision & Density tokens for admin/dashboard features. Each variant's palette should be distinct and intentional — see the Colorful UI Variants section below for per-variant direction.
+
 #### Page Layout
 
 Do NOT generate any introductory text, preamble, or explanation above the wireframe options. The HTML file starts directly with the title bar and tab navigation — nothing else.
 
 ```
 ┌─────────────────────────────────────────────────┐
-│  [Feature Name] — [Project Name]  ★ Rec: Opt N   │
+│  [Feature Name] — [Project Name]  ★ Rec: Opt N  [◉ Full Page | ○ Focus]  │
 │                                                   │
 │  ┌────────┬─────────┬─────────┬─────────┬─────────┐ │
 │  │1: Safe │2: [Name]│3: [Name]│4: [Name]│ Summary │ │
@@ -185,10 +205,14 @@ Do NOT generate any introductory text, preamble, or explanation above the wirefr
 │                                                   │
 │  OPTION 1: Safe Option                            │
 │  [One short sentence]                             │
+│  ┌──────────┬──────────┬────────────┬────────────┬────────────┐ │
+│  │Wireframe │🎨 Clean │🌈 Polished │✨ Animated │🔥 Creative │ │
+│  └──────────┴──────────┴────────────┴────────────┴────────────┘ │
 │  ┌─────────────────────────────────────────┐     │
 │  │                                         │     │
-│  │  [Interactive wireframe using existing  │     │
-│  │   patterns from design-context.md]      │     │
+│  │  [Content for selected sub-tab]         │     │
+│  │  Wireframe: B&W wireframe (default)     │     │
+│  │  Style A-D: Colorful UI renderings      │     │
 │  │                                         │     │
 │  └─────────────────────────────────────────┘     │
 │                                                   │
@@ -196,9 +220,12 @@ Do NOT generate any introductory text, preamble, or explanation above the wirefr
 │                                                   │
 │  OPTION 2: [Short Name]                           │
 │  [One short sentence]                             │
+│  ┌──────────┬──────────┬────────────┬────────────┬────────────┐ │
+│  │Wireframe │🎨 Clean │🌈 Polished │✨ Animated │🔥 Creative │ │
+│  └──────────┴──────────┴────────────┴────────────┴────────────┘ │
 │  ┌─────────────────────────────────────────┐     │
 │  │                                         │     │
-│  │  [Interactive wireframe]                │     │
+│  │  [Content for selected sub-tab]         │     │
 │  │                                         │     │
 │  └─────────────────────────────────────────┘     │
 │                                                   │
@@ -214,10 +241,18 @@ Do NOT generate any introductory text, preamble, or explanation above the wirefr
 └─────────────────────────────────────────────────┘
 ```
 
+> **Note:** The `[◉ Full Page | ○ Focus]` toggle only appears for Component/Module features (see Step 3a-ii). For Full Page / Standalone features, omit the toggle.
+
 #### Title Bar
 The title bar at the top of the page contains:
 - The feature name and project name (compact, one line)
 - A recommended option indicator: `★ Recommended: Option N` — pick the option that best serves the user's optimization goal. If no goal was provided, pick the option with the best overall UX balance.
+- **Context toggle** (Component mode only): a pill-style segmented control on the right side of the title bar.
+  - **"Full Page"** (default active): shows the component rendered within its full page context.
+  - **"Focus on [Component Name]"**: shows the component in isolation, filling available width.
+  - Styled with wireframe grayscale (`#eee` background, `#000` active segment, `#fff` active text). Compact — doesn't compete with the ★ indicator.
+  - Global setting — affects all options simultaneously and persists across tab switches.
+  - Hidden for Full Page / Standalone features.
 
 #### Required Sections in Each Option
 1. **Title**: "Option [Number]: [Short Name]" — the short name is 1-3 words (e.g., "Option 2: Card Stack", "Option 3: Step Flow")
@@ -241,6 +276,7 @@ Each wireframe option should include functional interactive elements where appro
 - Buttons with hover states (using only the allowed grays)
 - Toggleable states (show/hide, active/inactive)
 - Responsive behavior (the wireframes should work at different viewport widths)
+- Context toggle (Component mode only): pill toggle in title bar switching between Full Page and Focus views globally across all options
 
 #### UX Approaches
 
@@ -279,6 +315,87 @@ Each wireframe option should include functional interactive elements where appro
 #### Annotation System
 Include a subtle annotation layer using small numbered circles (e.g., ①②③) linked to UX notes below each wireframe explaining key interaction decisions.
 
+#### Component-in-Context Mode
+
+When Step 3a-ii classifies a feature as a Component/Module, apply these rules:
+
+**Shared page shell (rendered once):**
+- Create ONE hidden `<template id="page-shell">` element containing the full surrounding page from `design-context.md`.
+- The shell includes a `<div id="component-slot"></div>` placeholder where the targeted component gets inserted.
+- The shell is styled in wireframe grayscale by default.
+- This template is **NOT** duplicated per option — it exists exactly once in the HTML output.
+- Keep the shell minimal — just enough structure for context (simplified header, content placeholder, footer placeholder as needed).
+- Surrounding content should be realistic but simplified — enough to provide context, not a full redesign.
+
+**Per-option rendering (component only):**
+- Each option's wireframe and color variant sub-tabs render **ONLY the targeted component** — not the full page.
+- Each component div gets data attributes linking it to its option and sub-tab: `data-option="1" data-subtab="wireframe"`, `data-option="1" data-subtab="clean"`, etc.
+- The targeted component must be visually highlighted:
+  - **Wireframe sub-tab**: `2px dashed #000` border around the component + a small label badge (component name, `11px` font, black background, white text) pinned to the top-left corner of the component.
+  - **Color variant sub-tabs (Style A–D)**: accent-colored border + matching label badge using the variant's palette.
+- UX philosophy differences between options apply **only** to the targeted component, not the surrounding page shell.
+
+**Focus view (default):**
+- Component rendered in isolation (no surrounding page), filling available width. This matches the current default behavior.
+
+**Full Page view:**
+- When "Full Page" is active: JS clones the `<template id="page-shell">`, inserts the currently active component into the `#component-slot`, and displays the assembled page.
+- When "Focus" is active: shows only the component (default behavior).
+- On option/sub-tab switch: re-clone the shell and insert the new active component.
+- Auto-scroll the targeted component into view: `scrollIntoView({ behavior: 'smooth', block: 'center' })`.
+
+**Toggle JS behavior:**
+- Clicking "Full Page" or "Focus on [Component Name]" toggles between modes for all options simultaneously.
+- Toggle state is stored globally and reapplied on tab switch.
+
+**Color variant handling for the shell:**
+- The page shell gets a CSS class matching the active sub-tab: `shell-wireframe`, `shell-clean`, `shell-polished`, `shell-animated`, `shell-creative`.
+- Define shell color overrides per variant using these classes — simple palette swaps (background color, text color, border colors). This is ~5 CSS rules per variant, NOT a full re-rendering of the shell.
+- The shell should use understated, muted treatment — it must not compete visually with the targeted component.
+
+**Building the surrounding page shell** (based on component type):
+- **Footer** → show simplified header + main content area above
+- **Header / Nav** → show main content area + footer below
+- **Sidebar** → show header, main content alongside, footer
+- **Modal / Dialog** → show dimmed full page behind, modal overlaid and centered
+- **Card / Widget** → show within its natural page section with sibling content around it
+- **Banner / Toolbar** → show within full page at its natural position
+
+#### Colorful UI Variants
+
+> **--- Persona Switch: Visual Designer ---**
+> You are now the Visual Designer. The UX Architect's work is done — the B&W wireframe layout is locked. Your job is to bring each wireframe to life with color, typography, and motion. Do not change the layout, information architecture, or content hierarchy. Only the visual treatment changes.
+
+Each wireframe option includes a secondary row of sub-tabs below the option title and description:
+
+**Sub-tabs**: `Wireframe | 🎨 Clean | 🌈 Polished | ✨ Animated | 🔥 Creative`
+
+- **Wireframe** (default active): The existing B&W wireframe — unchanged from the rules above. Uses strict grayscale palette, system fonts only, no external dependencies.
+
+- **🎨 Clean (Style A)**: Simple, clean colors applied to the wireframe layout. Uses the project's color palette from `design-context.md` (or the appropriate style tokens from `design-taste.md`) with straightforward solid fills, clean typography, and proper spacing. No gradients, no fancy effects — just the layout brought to life with color. This is the "what if we just shipped this with real colors" variant.
+
+- **🌈 Polished (Style B)**: Same design language as Clean but elevated: bolder color contrasts, refined gradients, enhanced hover effects, richer accent colors. More premium, more considered feel. Subtle depth cues like layered shadows, refined border treatments, and polished micro-interactions on hover.
+
+- **✨ Animated (Style C)**: Builds on the Polished variant and adds CSS animations: staggered fade-in reveals on load, smooth hover transitions, scroll-triggered effects (using `IntersectionObserver`), micro-interactions on buttons/inputs (scale, color shift, ripple). Focus on motion and delight. All animations must respect `prefers-reduced-motion`. This variant should feel alive and responsive to interaction.
+
+- **🔥 Creative (Style D)**: Same layout but takes creative risks with color and typography: unexpected palettes, asymmetric accents, bold typography choices (Google Fonts encouraged here), distinctive character. Should feel "designed by a human with taste" not "generated by a template engine." This is the variant that breaks the mold — it might use a dark theme, a maximalist palette, unconventional spacing, or a striking font pairing.
+
+**Rules for all color variants (Style A–D):**
+- Must use the **EXACT same layout/structure** as the B&W wireframe for that option. Same information architecture, same element positions, same content hierarchy. Only the visual treatment changes.
+- Still fully self-contained — no external JS libraries, no icon CDNs. **May** use Google Fonts via `@import` in the `<style>` tag.
+- Each variant must have a **distinct, intentional aesthetic** — not just "slightly different colors." If you can't articulate what makes each variant different in one sentence, it's not differentiated enough.
+- Read `wireframe/brain/design-taste.md` for craft principles, style tokens, and anti-patterns.
+- Apply the quality checks (swap test, squint test, signature test, token test) mentally before outputting each variant.
+- Consumer-facing features should lean on the **Warmth & Approachability** tokens; admin/dashboard features on the **Precision & Density** tokens from `design-taste.md`.
+- Avoid the anti-patterns listed in `design-taste.md` — especially "Inter + purple gradient on white," identical card grids, and gratuitous glassmorphism.
+- In Component-in-Context mode, color variants apply full visual treatment to the targeted component only. The surrounding page shell is restyled via CSS class swaps (`shell-wireframe`, `shell-clean`, etc.) — not re-rendered. See "Color variant handling for the shell" above.
+
+**Implementation:**
+- The sub-tab switching is handled by the same JS that handles the main option tabs. Each sub-tab shows/hides a `<div>` containing that variant's content.
+- The "Wireframe" sub-tab is active by default when switching to any option.
+- Each variant's content is a complete rendering of the same layout — not a partial or placeholder.
+- The sub-tab bar should be visually lighter than the main option tabs (smaller font, less prominent) to maintain clear hierarchy.
+
 ### 3e. Report to User
 
 First, open the generated HTML file in the user's default browser using the Bash tool: `open wireframe/<feature-name>.html`
@@ -296,9 +413,12 @@ After generating wireframes, check if the feature reveals new patterns or page t
 
 ## Important Reminders
 
-- You are a UX architect, not a visual designer. Focus on information architecture, user flows, interaction patterns, and content hierarchy.
+- **Persona 1 (UX Architect)** owns the Wireframe sub-tab: information architecture, user flows, layout structure, and interactive behavior. No visual design decisions happen here.
+- **Persona 2 (Visual Designer)** owns the color variant sub-tabs (Style A–D): color, typography, spacing refinement, and motion. The wireframe layout is locked — the Visual Designer must not alter layout, content hierarchy, or information architecture. Only the visual treatment changes.
 - Option 1 (Safe Option) must always use existing patterns from `design-context.md`. Options 2 onwards must each represent a genuinely different UX philosophy — not just visual rearrangements.
 - The wireframes must be functional HTML that works in a browser — not just pictures.
-- Keep the black-and-white constraint strict. This forces focus on structure over aesthetics.
-- Read the design context every time to maintain consistency across wireframe sessions.
+- Keep the black-and-white constraint strict for the **Wireframe sub-tab**. Color variants follow their own palette rules guided by `design-taste.md`.
+- Read both `design-context.md` and `design-taste.md` every time to maintain consistency across wireframe sessions.
 - When the project has existing UX patterns, reference them in your wireframes where appropriate.
+- Each of the 4 color variants must be genuinely distinct — apply the quality checks from `design-taste.md` and avoid the listed anti-patterns.
+- When wireframing a component (not a full page), render it within its page context by default. Use the surrounding page structure from `design-context.md`. The component must be visually highlighted with a border and label badge. Provide a Full Page / Focus toggle in the title bar so users can switch between context and isolation views.
