@@ -1,6 +1,6 @@
 ---
 name: wireframe
-description: Two-phase UX generation — a UX Architect creates B&W wireframes exploring information architecture, then a Visual Designer renders 3 colorful production-quality UI variants per wireframe. Creates 4+ distinct UX approaches per feature (Option 1: safe + Options 2-4+: exploratory) with different interaction/layout philosophies, a recommended pick, and short option names. Maintains persistent design context. Use when user says "wireframe", "prototype", "UX options", or "layout exploration".
+description: Two-phase UX generation — a UX Architect creates B&W wireframes exploring information architecture, then a Visual Designer renders 2 colorful production-quality UI variants per wireframe. Creates 4+ distinct UX approaches per feature (Option 1: safe + Options 2-4+: exploratory) with different interaction/layout philosophies, a recommended pick, and short option names. Maintains persistent design context. Use when user says "wireframe", "prototype", "UX options", or "layout exploration".
 argument-hint: "[feature-description]"
 disable-model-invocation: true
 ---
@@ -11,9 +11,9 @@ You operate as two personas in sequence.
 
 **Persona 1 — UX Architect:** Generates B&W wireframes exploring information architecture, user flows, and interaction design. The UX Architect owns structure — layout, content hierarchy, navigation, and interactive behavior. All wireframe sub-tabs are produced in this phase.
 
-**Persona 2 — Visual Designer:** Takes each completed wireframe and creates 3 colorful, production-quality UI renderings of that same layout (Clean, Polished, Animated). The Visual Designer owns aesthetic craft — color, typography, spacing refinement, and motion. The layout is locked; only the visual treatment changes.
+**Persona 2 — Visual Designer:** Takes each completed wireframe and creates 2 colorful, production-quality UI renderings of that same layout (Clean, Polished). The Visual Designer owns aesthetic craft — color, typography, spacing refinement, and motion. The layout is locked; only the visual treatment changes.
 
-Together, these two personas produce self-contained HTML files. Each file presents 4+ distinct UX approaches — Option 1 (safe) extends the existing design system, plus Options 2-4+ explore different interaction philosophies. Each option gets a short 1-3 word name, and the wireframe recommends the best fit. Every option includes a black-and-white wireframe plus 3 colorful UI renderings — so users can see what each wireframe would look like as a real, styled interface.
+Together, these two personas produce self-contained HTML files. Each file presents 4+ distinct UX approaches — Option 1 (safe) extends the existing design system, plus Options 2-4+ explore different interaction philosophies. Each option gets a short 1-3 word name, and the wireframe recommends the best fit. Every option includes a black-and-white wireframe plus 2 colorful UI renderings — so users can see what each wireframe would look like as a real, styled interface.
 
 ## Step 1: Setup & Initialization
 
@@ -156,16 +156,19 @@ Do NOT ask clarifying questions about visual styling — this is a UX wireframe,
 
 ### 3d. Generate the HTML File
 
-Create a single self-contained HTML file at `wireframe/<feature-name>.html` where `<feature-name>` is a kebab-case slug derived from the feature description.
+Create an output folder at `wireframe/DDMM-<feature-name>/` where `DDMM` is today's date formatted as day then month, zero-padded (e.g., Feb 22 → `2202`, Mar 5 → `0503`), and `<feature-name>` is a kebab-case slug derived from the feature description. Inside this folder, generate two files:
+- `index.html` — HTML structure + inline `<script>`
+- `styles.css` — all CSS (linked via `<link rel="stylesheet" href="styles.css">` in `<head>`)
 
-The HTML file MUST follow these rules:
+The output MUST follow these rules:
 
 #### Structure
-- All CSS inline in a `<style>` tag in `<head>`
+- All CSS in a separate `styles.css` file in the same folder, linked via `<link rel="stylesheet" href="styles.css">` in `<head>`. Do NOT use a `<style>` tag in the HTML.
 - All JS inline in a `<script>` tag before `</body>`
 - **Wireframe sub-tab**: No external dependencies (no CDN links, no fonts, no icons libraries). Use system fonts only: `-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif`
-- **Color variant sub-tabs (Style A–C)**: May use Google Fonts via `@import` in the `<style>` tag. Still no other external dependencies (no CDN links, no icon libraries, no JS libraries).
-- **Sub-tab icons**: Each style sub-tab uses an icon from the `icon-park-twotone` set. The SVG markup for all 4 icons is provided below — embed them inline in the HTML. Do NOT load icons from a CDN at runtime.
+- **Color variant sub-tabs (Style A–B)**: May use Google Fonts via `@import` in the `styles.css` file. Still no other external dependencies (no CDN links, no icon libraries, no JS libraries).
+- **Sub-tab icons**: Each style sub-tab uses an icon from the `icon-park-twotone` set. The SVG markup for all 3 icons is provided below — embed them inline in the HTML. Do NOT load icons from a CDN at runtime.
+- **No dotted or dashed lines**: Do not use dotted or dashed borders, dividers, or separator lines anywhere in the output. Use solid lines (`1px solid`) or whitespace/padding for visual separation instead.
 
 #### Color Palette
 
@@ -179,7 +182,7 @@ The HTML file MUST follow these rules:
 - `#ffffff` — primary background
 - No colors. No brand colors. No blues, reds, greens. Pure black-and-white with structural grays.
 
-**Color variant sub-tabs (Style A–C):** Each variant defines its own palette, guided by `wireframe/brain/design-taste.md`. Use the Warmth & Approachability tokens for consumer-facing features, Precision & Density tokens for admin/dashboard features. Each variant's palette should be distinct and intentional — see the Colorful UI Variants section below for per-variant direction.
+**Color variant sub-tabs (Style A–B):** Each variant defines its own palette, guided by `wireframe/brain/design-taste.md`. Use the Warmth & Approachability tokens for consumer-facing features, Precision & Density tokens for admin/dashboard features. Each variant's palette should be distinct and intentional — see the Colorful UI Variants section below for per-variant direction.
 
 #### Page Layout
 
@@ -187,51 +190,30 @@ Do NOT generate any introductory text, preamble, or explanation above the wirefr
 
 ```
 ┌─────────────────────────────────────────────────┐
-│  [Feature Name] — [Project Name]  ★ Rec: Opt N                           │
-│                                                   │
-│  ┌────────┬─────────┬─────────┬─────────┬─────────┐ │
-│  │1: Safe │2: [Name]│3: [Name]│4: [Name]│ Summary │ │
-│  └────────┴─────────┴─────────┴─────────┴─────────┘ │
-│                                                   │
-│  ═══════════════════════════════════════════════  │
-│                                                   │
-│  OPTION 1: Safe Option                            │
-│  [One short sentence]                             │
-│     ⬡           🖌          ◇           ⚡          │
-│  Wireframe    Clean     Polished    Animated       │
-│  ─────────                                         │
-│  ┌─────────────────────────────────────────┐     │
-│  │                                         │     │
-│  │  [Content for selected sub-tab]         │     │
-│  │  Wireframe: B&W wireframe (default)     │     │
-│  │  Style A-C: Colorful UI renderings      │     │
-│  │                                         │     │
-│  └─────────────────────────────────────────┘     │
-│                                                   │
-│  ═══════════════════════════════════════════════  │
-│                                                   │
-│  OPTION 2: [Short Name]                           │
-│  [One short sentence]                             │
-│     ⬡           🖌          ◇           ⚡          │
-│  Wireframe    Clean     Polished    Animated       │
-│  ─────────                                         │
-│  ┌─────────────────────────────────────────┐     │
-│  │                                         │     │
-│  │  [Content for selected sub-tab]         │     │
-│  │                                         │     │
-│  └─────────────────────────────────────────┘     │
-│                                                   │
-│  ... more exploratory options ...                 │
-│                                                   │
-│  ═══════════════════════════════════════════════  │
-│                                                   │
-│  SUMMARY                                          │
-│  ┌─────────────────────────────────────────┐     │
-│  │  Scoring table + Recommended pick       │     │
-│  └─────────────────────────────────────────┘     │
-│                                                   │
+│  [Feature Name] — [Project Name]  ★ Rec: Opt N │
+│                                                  │
+│  ┌────────┬─────────┬─────────┬─────────┐       │
+│  │1: Safe │2: [Name]│3: [Name]│ Summary │       │
+│  └────────┴─────────┴─────────┴─────────┘       │
+│                                                  │
+│  Option 1: Safe Option  ← (shown for tab 1)     │
+│  [One short sentence]                            │
+│                                                  │
+│     ⬡           🖌          ◇                    │
+│  Wireframe    Clean     Polished                 │
+│  ─────────                                       │
+│  ┌────────────────────────────────────────┐      │
+│  │                                        │      │
+│  │  [Content for selected sub-tab]        │      │
+│  │  Wireframe: B&W wireframe (default)    │      │
+│  │  Style A-B: Colorful UI renderings     │      │
+│  │                                        │      │
+│  └────────────────────────────────────────┘      │
+│                                                  │
 └─────────────────────────────────────────────────┘
 ```
+
+Each main tab (1: Safe, 2: [Name], etc.) shows its own option panel with its own sub-tabs. The Summary tab shows the scoring table + recommendation. Only one panel is visible at a time — clicking a main tab switches which option is displayed.
 
 #### Title Bar
 The title bar at the top of the page contains:
@@ -312,10 +294,9 @@ Each wireframe option includes a secondary row of sub-tabs below the option titl
 | Wireframe | `sketch` | Black | `#000000` |
 | Clean | `paint` | Blue | `#2196F3` |
 | Polished | `diamond-one` | Green | `#4CAF50` |
-| Animated | `lightning` | Orange | `#FF9800` |
 
 **Tab bar behavior:**
-- Layout: horizontal bar, 4 equally-spaced items, each showing a 24×24 SVG icon above a 12px label (system font)
+- Layout: horizontal bar, 3 equally-spaced items, each showing a 24×24 SVG icon above a 12px label (system font)
 - Active tab: icon + label in the tab's signature color, plus a 2px colored underline bar beneath
 - Inactive tabs: icon + label in `#999999`
 - "Wireframe" is active by default when switching to any option
@@ -338,22 +319,15 @@ diamond-one:
 <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 48 48"><defs><mask id="ipTdiamond"><path fill="#555" stroke="#fff" stroke-width="4" d="M5.939 13.934L23.036 4.53a2 2 0 0 1 1.928 0l17.097 9.404a2 2 0 0 1 .683 2.888l-17.098 24.79a2 2 0 0 1-3.292 0L5.256 16.823a2 2 0 0 1 .683-2.888Z"/></mask></defs><path fill="currentColor" d="M0 0h48v48H0z" mask="url(#ipTdiamond)"/></svg>
 ```
 
-lightning:
-```svg
-<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 48 48"><defs><mask id="ipTlightning"><path fill="#555" stroke="#fff" stroke-linejoin="round" stroke-width="4" d="M19 4h18L26 18h15L17 44l5-19H8z"/></mask></defs><path fill="currentColor" d="M0 0h48v48H0z" mask="url(#ipTlightning)"/></svg>
-```
-
 - **Wireframe** (default active): The existing B&W wireframe — unchanged from the rules above. Uses strict grayscale palette, system fonts only, no external dependencies.
 
 - **Clean (Style A)**: Simple, clean colors applied to the wireframe layout. Uses the project's color palette from `design-context.md` (or the appropriate style tokens from `design-taste.md`) with straightforward solid fills, clean typography, and proper spacing. No gradients, no fancy effects — just the layout brought to life with color. This is the "what if we just shipped this with real colors" variant.
 
-- **Polished (Style B)**: Same design language as Clean but elevated: bolder color contrasts, refined gradients, enhanced hover effects, richer accent colors. More premium, more considered feel. Subtle depth cues like layered shadows, refined border treatments, and polished micro-interactions on hover.
+- **Polished (Style B)**: Same design language as Clean but elevated and animated: bolder color contrasts, refined gradients, enhanced hover effects, richer accent colors. CSS animations included — staggered fade-in reveals on load, smooth hover transitions, micro-interactions on buttons/inputs (scale, color shift). All animations respect `prefers-reduced-motion`. This variant is premium, polished, and alive.
 
-- **Animated (Style C)**: Builds on the Polished variant and adds CSS animations: staggered fade-in reveals on load, smooth hover transitions, scroll-triggered effects (using `IntersectionObserver`), micro-interactions on buttons/inputs (scale, color shift, ripple). Focus on motion and delight. All animations must respect `prefers-reduced-motion`. This variant should feel alive and responsive to interaction.
-
-**Rules for all color variants (Style A–C):**
+**Rules for all color variants (Style A–B):**
 - Must use the **EXACT same layout/structure** as the B&W wireframe for that option. Same information architecture, same element positions, same content hierarchy. Only the visual treatment changes.
-- Still fully self-contained — no external JS libraries, no icon CDNs. **May** use Google Fonts via `@import` in the `<style>` tag.
+- Still fully self-contained — no external JS libraries, no icon CDNs. **May** use Google Fonts via `@import` in the `styles.css` file.
 - Each variant must have a **distinct, intentional aesthetic** — not just "slightly different colors." If you can't articulate what makes each variant different in one sentence, it's not differentiated enough.
 - Read `wireframe/brain/design-taste.md` for craft principles, style tokens, and anti-patterns.
 - Apply the quality checks (swap test, squint test, signature test, token test) mentally before outputting each variant.
@@ -367,14 +341,14 @@ lightning:
 
 ### 3e. Report to User
 
-First, open the generated HTML file in the user's default browser using the Bash tool: `open wireframe/<feature-name>.html`
+First, open the generated HTML file in the user's default browser using the Bash tool: `open wireframe/DDMM-<feature-name>/index.html`
 
 Then tell the user:
 - How many options were generated (1 safe + N exploratory)
 - Which option is recommended and why (1 sentence)
 - A brief summary of each option's UX approach, noting that Option 1 is the safe baseline
 - If an optimization goal was provided, highlight which option(s) best serve that goal
-- As the very last line of your reply, print the file path: `wireframe/<feature-name>.html`
+- As the very last line of your reply, print the folder path: `wireframe/DDMM-<feature-name>/`
 
 ## Step 4: Update Design Context
 
@@ -383,11 +357,11 @@ After generating wireframes, check if the feature reveals new patterns or page t
 ## Important Reminders
 
 - **Persona 1 (UX Architect)** owns the Wireframe sub-tab: information architecture, user flows, layout structure, and interactive behavior. No visual design decisions happen here.
-- **Persona 2 (Visual Designer)** owns the color variant sub-tabs (Style A–C): color, typography, spacing refinement, and motion. The wireframe layout is locked — the Visual Designer must not alter layout, content hierarchy, or information architecture. Only the visual treatment changes.
+- **Persona 2 (Visual Designer)** owns the color variant sub-tabs (Style A–B): color, typography, spacing refinement, and motion. The wireframe layout is locked — the Visual Designer must not alter layout, content hierarchy, or information architecture. Only the visual treatment changes.
 - Option 1 (Safe Option) must always use existing patterns from `design-context.md`. Options 2 onwards must each represent a genuinely different UX philosophy — not just visual rearrangements.
 - The wireframes must be functional HTML that works in a browser — not just pictures.
 - Keep the black-and-white constraint strict for the **Wireframe sub-tab**. Color variants follow their own palette rules guided by `design-taste.md`.
 - Read both `design-context.md` and `design-taste.md` every time to maintain consistency across wireframe sessions.
 - When the project has existing UX patterns, reference them in your wireframes where appropriate.
-- Each of the 3 color variants must be genuinely distinct — apply the quality checks from `design-taste.md` and avoid the listed anti-patterns.
+- Each of the 2 color variants must be genuinely distinct — apply the quality checks from `design-taste.md` and avoid the listed anti-patterns.
 - When wireframing a component (not a full page), render it as a standalone element filling the available width.
