@@ -161,7 +161,7 @@ Do NOT ask clarifying questions about visual styling — this is a UX wireframe,
 Create an output folder at `wireframe/DDMM-<feature-name>/` where `DDMM` is today's date formatted as day then month, zero-padded (e.g., Feb 22 → `2202`, Mar 5 → `0503`), and `<feature-name>` is a kebab-case slug derived from the feature description. Inside this folder, generate these files:
 - `index.html` — HTML structure + inline `<script>`
 - `styles.css` — all wireframe CSS (linked via `<link rel="stylesheet" href="styles.css">` in `<head>`)
-- `styles-opt1.css`, `styles-opt2.css`, `styles-opt3.css`, `styles-opt4.css` — empty files for Phase 2 color variant CSS (each linked via `<link rel="stylesheet" data-variant-opt="N">` in `<head>` after `styles.css` — no `onload`)
+- `styles-opt1.css`, `styles-opt2.css`, `styles-opt3.css`, `styles-opt4.css` — empty files for Phase 2 color variant CSS (each linked via `<link rel="stylesheet" href="styles-optN.css">` in `<head>` after `styles.css`)
 
 Generate **4 B&W wireframe options** (Option 1: Safe + Options 2–4: exploratory). Phase 1 renders each option's content once inside a `<div class="browser-frame wireframe" id="frame-optN">`. Sub-tab JS toggles the wrapper class between `wireframe`, `clean`, and `polished` — no separate content panels. Annotations (`.wf-annotations`) are hidden via CSS when class is `clean` or `polished`.
 
@@ -292,82 +292,32 @@ Phase 1 must add a small badge element to each Clean and Polished sub-tab button
 
 Styled as: small pill badge (`font-size: 9px; background: #f0f0f0; color: #999; border-radius: 8px; padding: 1px 6px;`) positioned above or next to the icon.
 
-**Polling mechanism for variant CSS detection:**
+**CSS self-reveal mechanism (replaces polling):**
 
-Phase 1 creates empty CSS files and links them in `<head>` with a data attribute (no `onload`):
+Phase 1 creates empty CSS files and links them in `<head>`:
 
 ```html
-<link rel="stylesheet" href="styles-opt1.css" data-variant-opt="1">
-<link rel="stylesheet" href="styles-opt2.css" data-variant-opt="2">
-<link rel="stylesheet" href="styles-opt3.css" data-variant-opt="3">
-<link rel="stylesheet" href="styles-opt4.css" data-variant-opt="4">
+<link rel="stylesheet" href="styles-opt1.css">
+<link rel="stylesheet" href="styles-opt2.css">
+<link rel="stylesheet" href="styles-opt3.css">
+<link rel="stylesheet" href="styles-opt4.css">
 ```
 
-The inline `<script>` (before `</body>`) must include a `pollVariantCSS()` function:
+Instead of JS polling to detect when CSS files have content, **the variant CSS files themselves** contain rules that handle UX transitions. When a Phase 2 agent writes `styles-optN.css`, that CSS includes self-reveal rules at the end that hide badges and color sub-tabs. No JS detection needed — pure CSS cascade.
 
-```js
-var readyOptions = {};
-var readyCount = 0;
+How it works:
+- When the CSS file is empty → badges visible, sub-tabs gray (Phase 1 defaults)
+- When the CSS file has content → its own rules hide the badges and color the tabs
+- No `pollVariantCSS`, no `optionReady`, no `readyOptions` tracking — zero JS detection
 
-function optionReady(n) {
-  if (readyOptions[n]) return; // dedup guard
-  readyOptions[n] = true;
-  readyCount++;
-  // Remove badges from option N's Clean/Polished sub-tabs
-  document.querySelectorAll('#frame-opt' + n + '-tabs .sub-tab-badge')
-    .forEach(function(b) { b.remove(); });
-  // Add .variant-ready class to Clean/Polished sub-tab buttons
-  document.querySelectorAll('#frame-opt' + n + '-tabs .sub-tab-btn[data-variant]')
-    .forEach(function(btn) { btn.classList.add('variant-ready'); });
-  // Show completion banner when all 4 are ready
-  if (readyCount >= 4) {
-    var banner = document.getElementById('completion-banner');
-    if (banner) {
-      banner.style.display = 'block';
-      setTimeout(function() { banner.style.display = 'none'; }, 8000);
-    }
-  }
-}
+Phase 2 agents must include these rules at the end of each `styles-optN.css`:
 
-function pollVariantCSS() {
-  for (var n = 1; n <= 4; n++) {
-    if (readyOptions[n]) continue;
-    var old = document.querySelector('link[data-variant-opt="' + n + '"]');
-    if (!old) continue;
-    var href = old.getAttribute('href');
-    // Remove old link and insert fresh one to force browser re-read from disk
-    old.parentNode.removeChild(old);
-    var fresh = document.createElement('link');
-    fresh.rel = 'stylesheet';
-    fresh.href = href + '?t=' + Date.now();
-    fresh.setAttribute('data-variant-opt', n);
-    (function(optNum) {
-      fresh.onload = function() {
-        try {
-          if (this.sheet && this.sheet.cssRules && this.sheet.cssRules.length > 0) {
-            optionReady(optNum);
-          }
-        } catch(e) { /* CORS or empty — retry next cycle */ }
-      };
-    })(n);
-    document.head.appendChild(fresh);
-  }
-  if (readyCount < 4) {
-    setTimeout(pollVariantCSS, 3000);
-  }
-}
-
-// Start polling 5s after page load
-setTimeout(pollVariantCSS, 5000);
+```css
+/* --- Self-reveal: hide generating badge, activate sub-tab colors --- */
+#frame-optN-tabs .sub-tab-badge { display: none; }
+#frame-optN-tabs .sub-tab-btn[data-variant="clean"].active { color: #1565C0; }
+#frame-optN-tabs .sub-tab-btn[data-variant="polished"].active { color: #2E7D32; }
 ```
-
-Key points:
-- Link tags use `data-variant-opt="N"` — no `onload` on the initial tags
-- Polling starts 5s after page load, runs every 3s
-- Each cycle removes the old `<link>` and inserts a fresh one with a cache-busting `?t=` param — this forces the browser to re-read the file from disk (critical for `file://` protocol)
-- On the fresh link's `onload`, checks `sheet.cssRules.length > 0` to verify real CSS content (not an empty file)
-- `optionReady(n)` is only called when CSS has actual rules
-- Dedup guard prevents double-firing
 
 **Completion banner:**
 
@@ -382,13 +332,40 @@ Phase 1 includes a hidden banner div at the top of the page:
 
 Banner styling: full-width, subtle background (`#f0faf0`), centered text, `font-size: 13px`, `padding: 10px`, dismissible with × button. Auto-hides after 8 seconds via `setTimeout`.
 
+**One-time load check for completion banner** — Phase 1's inline `<script>` includes:
+
+```js
+window.addEventListener('load', function() {
+  var badges = document.querySelectorAll('.sub-tab-badge');
+  var anyVisible = false;
+  badges.forEach(function(b) {
+    if (getComputedStyle(b).display !== 'none') anyVisible = true;
+  });
+  if (!anyVisible && badges.length > 0) {
+    var banner = document.getElementById('completion-banner');
+    if (banner) {
+      banner.style.display = 'block';
+      setTimeout(function() { banner.style.display = 'none'; }, 8000);
+    }
+  }
+});
+```
+
+This runs once on page load. When the main agent re-opens the page after all 4 agents complete, the CSS self-reveal rules hide all badges, the load check sees none visible → shows banner. No polling needed.
+
 **Sub-tab JS behavior:**
+
+The inline script only needs:
+- Main tab switching
+- Sub-tab switching (class toggle on `#frame-optN` between `wireframe`, `clean`, `polished`)
+- One-time load check for completion banner (above)
+- NO `pollVariantCSS`, NO `optionReady`, NO `readyOptions` tracking
 
 Sub-tab clicks swap the class on `#frame-optN` between `wireframe`, `clean`, `polished`. No separate content panels — same HTML, different CSS class.
 
 ### 3e. Launch Parallel Color Agents (Phase 2)
 
-Immediately after writing `index.html` and `styles.css`, launch **4 parallel foreground Task agents** in a single tool-call message — one per option. Each agent writes its CSS to a **separate file** (`styles-opt1.css`, `styles-opt2.css`, `styles-opt3.css`, `styles-opt4.css`). The Phase 1 HTML must include `<link data-variant-opt="N">` tags for all 4 variant CSS files in `<head>` (empty files created during Phase 1).
+Immediately after writing `index.html` and `styles.css`, launch **4 parallel foreground Task agents** in a single tool-call message — one per option. Each agent writes its CSS to a **separate file** (`styles-opt1.css`, `styles-opt2.css`, `styles-opt3.css`, `styles-opt4.css`). The Phase 1 HTML must include `<link rel="stylesheet" href="styles-optN.css">` tags for all 4 variant CSS files in `<head>` (empty files created during Phase 1).
 
 ```
 Launch all 4 Task agents in ONE tool-call message (parallel):
@@ -424,6 +401,10 @@ Each agent's prompt MUST include:
 > 4. Do NOT modify `index.html` — CSS is your only output
 > 5. Google Fonts allowed via `@import` at top of `styles-optN.css`
 > 6. Budget: ≤ 200 lines
+> 7. At the END of your CSS file, include these self-reveal rules (replace N with your option number):
+>    `#frame-optN-tabs .sub-tab-badge { display: none; }`
+>    `#frame-optN-tabs .sub-tab-btn[data-variant="clean"].active { color: #1565C0; }`
+>    `#frame-optN-tabs .sub-tab-btn[data-variant="polished"].active { color: #2E7D32; }`
 >
 > Do NOT duplicate layout rules — only override: `color`, `background`, `border-color`, `box-shadow`, `font-family`, `font-weight`, `transition`, `animation`.
 >
@@ -433,17 +414,21 @@ Each agent's prompt MUST include:
 > 2. **Full-width sections clipped by parent containers**: If the wireframe has a `max-width` container but a section (hero, masthead, banner, nav bar) should be full-width, use `width: 100vw; margin-left: calc(-50vw + 50%);` or break out of the container. Never leave a full-width section visually cut off at the sides. Test: does any section appear to "float" with gaps on the left/right edges?
 > 3. **Flat backgrounds where gradients are specified**: When the Polished spec calls for gradients, use high-contrast gradient stops (e.g., `linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 50%, #a5d6a7 100%)`) — not near-identical colors that appear flat. The gradient must be perceptible at a glance. Test: screenshot it — can you see the gradient without squinting?
 > 4. **Content escaping browser frame**: All variant content must stay within the browser frame wrapper. Use `overflow: hidden` on the frame content area. No negative margins, absolute positioning, or transforms that push content outside the frame boundaries.
+> 5. **Dark mode in Polished**: NEVER use dark backgrounds (`#0a-#2f` range) for Polished. Polished must keep the same light base as Clean. Dark backgrounds make it look like a different theme, not a polished version.
 >
 > **Clean (Style A)**: Simple, clean colors from `design-context.md` palette (or Warmth/Precision tokens from `design-taste.md`). System fonts only (`-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif`). Solid fills, clean typography, proper spacing. No gradients, no shadows, no effects — just color applied to the layout.
 >
-> **Polished (Style B)**: Must be **visibly different from Clean at first glance** — if someone can't immediately tell which sub-tab they're on, Polished hasn't gone far enough. Specifically:
-> - **Typography**: Use a Google Font pairing (display + body) that differs from Clean's system fonts. Larger headings, tighter letter-spacing on labels.
-> - **Color intensity**: Richer saturation. **All major sections (heroes, mastheads, banners, card headers) MUST use visible gradients** — not flat solid colors. Use gradient stops with ≥15% lightness difference (e.g., `#1a73e8` → `#4a9af5`, not `#e8f5e9` → `#e6f4ee`). Colored section dividers.
-> - **Depth & layering**: Elevated cards with multi-layer shadows, glassmorphism or frosted-glass effects on overlays, subtle background patterns/textures.
-> - **Animation**: Staggered entrance reveals (elements animate in on load with sequential delays), hover scale/lift transitions on cards and buttons, micro-interactions on form inputs (focus glow, checkmark animations), smooth tab transitions. Respect `prefers-reduced-motion`.
-> - **Finishing touches**: Decorative accents via `::before`/`::after` pseudo-elements (colored top borders on cards, pill-shaped badges, icon backgrounds), refined spacing with more generous whitespace.
+> **Polished (Style B)**: Builds on Clean's color scheme — same backgrounds, same palette, same light feel. The difference is **craft and finish**, not a different color scheme. Specifically:
+> - **Typography**: Use a Google Font pairing (display + body) that complements Clean's system fonts. Slightly more refined sizing/spacing.
+> - **Gradients**: Replace flat solid backgrounds on heroes/banners/card headers with **subtle gradients** using lighter/darker shades of the same Clean colors (e.g., `#f0faf5` → `#e2f5ec`, not dark backgrounds).
+> - **Depth & shadows**: Elevated cards with soft multi-layer shadows, subtle background glow effects. All on light backgrounds.
+> - **Animation**: Staggered entrance reveals, hover scale/lift on cards and buttons, micro-interactions on form inputs (focus glow), smooth transitions. Respect `prefers-reduced-motion`.
+> - **Decorative accents**: `::before`/`::after` pseudo-elements for colored top borders on cards, pill badges, accent lines, subtle background patterns.
+> - **Hover effects**: Interactive lift, color shift, underline animations on links and buttons.
 >
-> Polished MUST use the color palette from `design-context.md` as its foundation — do not invent new brand colors. Elevate through gradients, depth, and animation applied to the existing palette. If Clean is "color applied to wireframe", Polished is "designed and animated product UI using the same design system".
+> **CRITICAL: Polished must NOT use dark backgrounds.** Keep the same light/white base as Clean. If Clean has a white hero, Polished has a white-to-light-tint gradient hero — NOT a dark one. The goal is "Clean but with more craft" — not a different theme.
+>
+> Polished MUST use the color palette from `design-context.md` as its foundation — do not invent new brand colors. Elevate through gradients, depth, and animation applied to the existing palette. If Clean is "color applied to wireframe", Polished is "Clean but with more craft and finish".
 >
 > **Rules:**
 > - EXACT same layout/structure as B&W wireframe — only visual treatment changes
@@ -492,7 +477,7 @@ open wireframe/DDMM-<feature-name>/index.html
 
 Tell the user: **"All 4 options now have color variants (Clean + Polished). The page has been re-opened with the final result."**
 
-Note: Do not include "Refresh your browser" language — the in-page polling mechanism and completion banner handle live notification automatically.
+Note: Do not include "Refresh your browser" language — the CSS self-reveal mechanism and completion banner handle notification automatically when the page is re-opened.
 
 ## Step 4: Update Design Context
 
