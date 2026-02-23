@@ -1,6 +1,6 @@
 ---
 name: wireframe
-description: Progressive UX generation — Phase 1 generates 4 B&W wireframe options instantly (1 safe + 3 exploratory), then Phase 2 renders Clean + Polished color variants via 4 parallel Task agents (one per option). Supports wireframes-only or wireframes+visuals. Extracts optimization intent from arguments when present. Maintains persistent design context. Use when user says "wireframe", "prototype", "UX options", or "layout exploration".
+description: Progressive UX generation — Phase 1 generates 5 B&W wireframe options instantly (1 safe + 4 exploratory), then Phase 2 renders Clean + Polished color variants via 5 parallel Task agents (one per option). Supports wireframes-only or wireframes+visuals. Extracts optimization intent from arguments when present. Maintains persistent design context. Use when user says "wireframe", "prototype", "UX options", or "layout exploration".
 argument-hint: "[feature-description]"
 ---
 
@@ -8,11 +8,11 @@ argument-hint: "[feature-description]"
 
 You operate as two personas across two phases.
 
-**Persona 1 — UX Architect (Phase 1, foreground):** Generates 4 B&W wireframe options exploring information architecture, user flows, and interaction design. Writes `index.html` + `styles.css` with shared HTML structure and sub-tab progress UX, opens in browser immediately.
+**Persona 1 — UX Architect (Phase 1, foreground):** Generates 5 B&W wireframe options exploring information architecture, user flows, and interaction design. Writes `index.html` + `styles.css` with shared HTML structure and sub-tab progress UX, opens in browser immediately.
 
-**Persona 2 — Visual Designer (Phase 2, 4 parallel foreground Task agents):** Launched as 4 parallel foreground Task agents immediately after Phase 1 — one per option, each named "[Option Name]: Visual Designer". Each agent reads `index.html`, its own `styles-optN.css`, `design-taste.md`, and `design-context.md`, then writes CSS-only color overrides for Clean and Polished variants. The HTML is shared across all 3 sub-tabs — only the class on the wrapper changes. The layout is locked; only the visual treatment changes.
+**Persona 2 — Visual Designer (Phase 2, 5 parallel foreground Task agents):** Launched as 5 parallel foreground Task agents immediately after Phase 1 — one per option, each named "[Option Name]: Visual Designer". Each agent reads `index.html`, its own `styles-optN.css`, `design-taste.md`, and `design-context.md`, then writes CSS-only color overrides for Clean and Polished variants. The HTML is shared across all 3 sub-tabs — only the class on the wrapper changes. The layout is locked; only the visual treatment changes.
 
-Together, these two phases produce self-contained HTML files. Each file presents 4 distinct UX approaches — Option 1 (safe) extends the existing design system, plus Options 2–4 explore different interaction philosophies. Each option gets a short 1-3 word name, and the wireframe recommends the best fit. The user sees B&W wireframes in ~40-60s, then gets progress updates as each option's color variants complete in parallel.
+Together, these two phases produce self-contained HTML files. Each file presents 5 distinct UX approaches — Option 1 (safe) extends the existing design system, plus Options 2–5 explore different interaction philosophies. Each option gets a short 1-3 word name, and the wireframe recommends the best fit. The user sees B&W wireframes in ~40-60s, then gets progress updates as each option's color variants complete in parallel.
 
 ## Step 1: Setup & Initialization
 
@@ -161,9 +161,9 @@ Do NOT ask clarifying questions about visual styling — this is a UX wireframe,
 Create an output folder at `wireframe/DDMM-<feature-name>/` where `DDMM` is today's date formatted as day then month, zero-padded (e.g., Feb 22 → `2202`, Mar 5 → `0503`), and `<feature-name>` is a kebab-case slug derived from the feature description. Inside this folder, generate these files:
 - `index.html` — HTML structure + inline `<script>`
 - `styles.css` — all wireframe CSS (linked via `<link rel="stylesheet" href="styles.css">` in `<head>`)
-- `styles-opt1.css`, `styles-opt2.css`, `styles-opt3.css`, `styles-opt4.css` — empty files for Phase 2 color variant CSS (each linked via `<link rel="stylesheet" href="styles-optN.css">` in `<head>` after `styles.css`)
+- `styles-opt1.css`, `styles-opt2.css`, `styles-opt3.css`, `styles-opt4.css`, `styles-opt5.css` — empty files for Phase 2 color variant CSS (each linked via `<link rel="stylesheet" href="styles-optN.css">` in `<head>` after `styles.css`)
 
-Generate **4 B&W wireframe options** (Option 1: Safe + Options 2–4: exploratory). Phase 1 renders each option's content once inside a `<div class="browser-frame wireframe" id="frame-optN">`. Sub-tab JS toggles the wrapper class between `wireframe`, `clean`, and `polished` — no separate content panels. Annotations (`.wf-annotations`) are hidden via CSS when class is `clean` or `polished`.
+Generate **5 B&W wireframe options** (Option 1: Safe + Options 2–5: exploratory). Phase 1 renders each option's content once inside a `<div class="browser-frame wireframe" id="frame-optN">`. Sub-tab JS toggles the wrapper class between `wireframe`, `clean`, and `polished` — no separate content panels. Annotations (`.wf-annotations`) are hidden via CSS when class is `clean` or `polished`.
 
 The output MUST follow these rules:
 
@@ -196,9 +196,9 @@ No introductory text above wireframes. HTML starts directly with the title bar a
 ```
 ┌─────────────────────────────────────────────────┐
 │  [Feature Name] — [Project Name]  ★ Rec: Opt N │
-│  ┌──────┬──────┬──────┬──────┬─────────┐        │
-│  │1:Safe│2:Name│3:Name│4:Name│ Summary │        │
-│  └──────┴──────┴──────┴──────┴─────────┘        │
+│  ┌──────┬──────┬──────┬──────┬──────┬─────────┐  │
+│  │1:Safe│2:Name│3:Name│4:Name│5:Name│ Summary │  │
+│  └──────┴──────┴──────┴──────┴──────┴─────────┘  │
 │  Option 1: Safe Option                           │
 │  [One short sentence]                            │
 │     ⬡        🖌       ◇                          │
@@ -256,7 +256,7 @@ Include functional interactive elements: clickable tabs/accordions, typeable for
 
 **Option 1**: Safe Option — replicate existing patterns from `design-context.md`.
 
-**Options 2–4** — pick 3 from: Progressive Disclosure, Dashboard-First, Wizard/Step-by-Step, Hub-and-Spoke, Inline Editing, Split View, Card-Based, Conversational, Kanban/Column, Timeline, Search-First, Contextual Actions, Feed-Based, Spatial/Map-Centric, Gesture-Driven, Command Palette, Notification-Driven, Floating Action, Comparison Table, Drag-and-Drop, Accordion/Collapsible, Gamified Progress — or create your own.
+**Options 2–5** — pick 4 from: Progressive Disclosure, Dashboard-First, Wizard/Step-by-Step, Hub-and-Spoke, Inline Editing, Split View, Card-Based, Conversational, Kanban/Column, Timeline, Search-First, Contextual Actions, Feed-Based, Spatial/Map-Centric, Gesture-Driven, Command Palette, Notification-Driven, Floating Action, Comparison Table, Drag-and-Drop, Accordion/Collapsible, Gamified Progress — or create your own.
 
 #### Content Guidelines
 - Realistic placeholder content (not lorem ipsum), realistic data quantities
@@ -301,22 +301,27 @@ Phase 1 creates empty CSS files and links them in `<head>`:
 <link rel="stylesheet" href="styles-opt2.css">
 <link rel="stylesheet" href="styles-opt3.css">
 <link rel="stylesheet" href="styles-opt4.css">
+<link rel="stylesheet" href="styles-opt5.css">
 ```
 
-Instead of JS polling to detect when CSS files have content, **the variant CSS files themselves** contain rules that handle UX transitions. When a Phase 2 agent writes `styles-optN.css`, that CSS includes self-reveal rules at the end that hide badges and color sub-tabs. No JS detection needed — pure CSS cascade.
+Instead of JS polling to detect when CSS files have content, **the variant CSS files themselves** contain rules that handle UX transitions. When a Phase 2 agent writes `styles-optN.css`, that CSS includes self-reveal rules at the end that hide badges and color sub-tabs for all states (ready, hover, active). No JS detection needed — pure CSS cascade.
 
 How it works:
 - When the CSS file is empty → badges visible, sub-tabs gray (Phase 1 defaults)
-- When the CSS file has content → its own rules hide the badges and color the tabs
+- When the CSS file has content → its own rules hide the badges and color the tabs in all states: ready (light color), hover (medium color), and active (dark color + border)
 - No `pollVariantCSS`, no `optionReady`, no `readyOptions` tracking — zero JS detection
 
 Phase 2 agents must include these rules at the end of each `styles-optN.css`:
 
 ```css
-/* --- Self-reveal: hide generating badge, activate sub-tab colors --- */
+/* --- Self-reveal: hide badge, color sub-tabs --- */
 #frame-optN-tabs .sub-tab-badge { display: none; }
-#frame-optN-tabs .sub-tab-btn[data-variant="clean"].active { color: #1565C0; }
-#frame-optN-tabs .sub-tab-btn[data-variant="polished"].active { color: #2E7D32; }
+#frame-optN-tabs .sub-tab-btn[data-variant="clean"] { color: #64B5F6; }
+#frame-optN-tabs .sub-tab-btn[data-variant="clean"]:hover { color: #1E88E5; }
+#frame-optN-tabs .sub-tab-btn[data-variant="clean"].active { color: #1565C0; border-bottom-color: #1565C0; }
+#frame-optN-tabs .sub-tab-btn[data-variant="polished"] { color: #81C784; }
+#frame-optN-tabs .sub-tab-btn[data-variant="polished"]:hover { color: #43A047; }
+#frame-optN-tabs .sub-tab-btn[data-variant="polished"].active { color: #2E7D32; border-bottom-color: #2E7D32; }
 ```
 
 **Completion banner:**
@@ -330,7 +335,14 @@ Phase 1 includes a hidden banner div at the top of the page:
 </div>
 ```
 
-Banner styling: full-width, subtle background (`#f0faf0`), centered text, `font-size: 13px`, `padding: 10px`, dismissible with × button. Auto-hides after 8 seconds via `setTimeout`.
+Banner styling: full-width, warm amber background (`#ffe5c0`), centered text, `font-size: 13px`, `padding: 10px`, dismissible with × button. Auto-hides after 8 seconds via `setTimeout`. Entrance animation: `animation: bannerSlideDown 0.4s ease-out`. Phase 1 must include this keyframe in `styles.css`:
+
+```css
+@keyframes bannerSlideDown {
+  from { transform: translateY(-100%); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+```
 
 **One-time load check for completion banner** — Phase 1's inline `<script>` includes:
 
@@ -351,7 +363,7 @@ window.addEventListener('load', function() {
 });
 ```
 
-This runs once on page load. When the main agent re-opens the page after all 4 agents complete, the CSS self-reveal rules hide all badges, the load check sees none visible → shows banner. No polling needed.
+This runs once on page load. When the main agent re-opens the page after all 5 agents complete, the CSS self-reveal rules hide all badges, the load check sees none visible → shows banner. No polling needed.
 
 **Sub-tab JS behavior:**
 
@@ -365,15 +377,16 @@ Sub-tab clicks swap the class on `#frame-optN` between `wireframe`, `clean`, `po
 
 ### 3e. Launch Parallel Color Agents (Phase 2)
 
-Immediately after writing `index.html` and `styles.css`, launch **4 parallel foreground Task agents** in a single tool-call message — one per option. Each agent writes its CSS to a **separate file** (`styles-opt1.css`, `styles-opt2.css`, `styles-opt3.css`, `styles-opt4.css`). The Phase 1 HTML must include `<link rel="stylesheet" href="styles-optN.css">` tags for all 4 variant CSS files in `<head>` (empty files created during Phase 1).
+Immediately after writing `index.html` and `styles.css`, launch **5 parallel foreground Task agents** in a single tool-call message — one per option. Each agent writes its CSS to a **separate file** (`styles-opt1.css`, `styles-opt2.css`, `styles-opt3.css`, `styles-opt4.css`, `styles-opt5.css`). The Phase 1 HTML must include `<link rel="stylesheet" href="styles-optN.css">` tags for all 5 variant CSS files in `<head>` (empty files created during Phase 1).
 
 ```
-Launch all 4 Task agents in ONE tool-call message (parallel):
+Launch all 5 Task agents in ONE tool-call message (parallel):
 
 Agent 1: description: "[Option 1 Name]: Visual Designer"
 Agent 2: description: "[Option 2 Name]: Visual Designer"
 Agent 3: description: "[Option 3 Name]: Visual Designer"
 Agent 4: description: "[Option 4 Name]: Visual Designer"
+Agent 5: description: "[Option 5 Name]: Visual Designer"
 
 All with:
   subagent_type: "general-purpose"
@@ -403,8 +416,12 @@ Each agent's prompt MUST include:
 > 6. Budget: ≤ 200 lines
 > 7. At the END of your CSS file, include these self-reveal rules (replace N with your option number):
 >    `#frame-optN-tabs .sub-tab-badge { display: none; }`
->    `#frame-optN-tabs .sub-tab-btn[data-variant="clean"].active { color: #1565C0; }`
->    `#frame-optN-tabs .sub-tab-btn[data-variant="polished"].active { color: #2E7D32; }`
+>    `#frame-optN-tabs .sub-tab-btn[data-variant="clean"] { color: #64B5F6; }`
+>    `#frame-optN-tabs .sub-tab-btn[data-variant="clean"]:hover { color: #1E88E5; }`
+>    `#frame-optN-tabs .sub-tab-btn[data-variant="clean"].active { color: #1565C0; border-bottom-color: #1565C0; }`
+>    `#frame-optN-tabs .sub-tab-btn[data-variant="polished"] { color: #81C784; }`
+>    `#frame-optN-tabs .sub-tab-btn[data-variant="polished"]:hover { color: #43A047; }`
+>    `#frame-optN-tabs .sub-tab-btn[data-variant="polished"].active { color: #2E7D32; border-bottom-color: #2E7D32; }`
 >
 > Do NOT duplicate layout rules — only override: `color`, `background`, `border-color`, `box-shadow`, `font-family`, `font-weight`, `transition`, `animation`.
 >
@@ -442,7 +459,7 @@ Each agent's prompt MUST include:
 As each parallel agent returns, the main agent reports to the user:
 > "✔ [Option Name] — Clean + Polished ready."
 
-After all 4 return, confirm everything is done.
+After all 5 return, confirm everything is done.
 
 ### 3f. Report to User (two phases)
 
@@ -451,7 +468,7 @@ After all 4 return, confirm everything is done.
 Open the generated HTML file: `open wireframe/DDMM-<feature-name>/index.html`
 
 Then tell the user:
-- How many options were generated (1 safe + 3 exploratory)
+- How many options were generated (1 safe + 4 exploratory)
 - Which option is recommended and why (1 sentence)
 - Brief summary of each option's UX approach
 - If an optimization goal was provided, highlight which option(s) best serve that goal
@@ -464,10 +481,10 @@ Then tell the user:
 
 **3f-ii. As each parallel agent returns:**
 
-Report progress as each of the 4 agents completes:
+Report progress as each of the 5 agents completes:
 > "✔ [Option Name] — Clean + Polished ready."
 
-**3f-iii. After all 4 agents return:**
+**3f-iii. After all 5 agents return:**
 
 Re-open the HTML file so the user sees the final result:
 
@@ -475,7 +492,7 @@ Re-open the HTML file so the user sees the final result:
 open wireframe/DDMM-<feature-name>/index.html
 ```
 
-Tell the user: **"All 4 options now have color variants (Clean + Polished). The page has been re-opened with the final result."**
+Tell the user: **"All 5 options now have color variants (Clean + Polished). The page has been re-opened with the final result."**
 
 Note: Do not include "Refresh your browser" language — the CSS self-reveal mechanism and completion banner handle notification automatically when the page is re-opened.
 
@@ -487,7 +504,7 @@ After generating wireframes, check if the feature reveals new patterns or page t
 
 - **Persona 1 (UX Architect)** owns wireframe structure: layout, content hierarchy, navigation, interactive behavior.
 - **Persona 2 (Visual Designer)** owns color variants: color, typography, spacing refinement, motion. Layout is locked.
-- Option 1 must use existing patterns from `design-context.md`. Options 2–4 must each represent a genuinely different UX philosophy.
+- Option 1 must use existing patterns from `design-context.md`. Options 2–5 must each represent a genuinely different UX philosophy.
 - Wireframes must be functional HTML. B&W constraint strict for Wireframe sub-tab.
 - Read both `design-context.md` and `design-taste.md` every time.
 - When wireframing a component (not a full page), render it as a standalone element filling the available width.
