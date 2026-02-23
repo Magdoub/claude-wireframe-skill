@@ -12,6 +12,12 @@ git clone https://github.com/Magdoub/claude-wireframe-skill.git ~/.claude/skills
 
 Or manually: download [`SKILL.md`](SKILL.md) and place it at `~/.claude/skills/wireframe/SKILL.md`.
 
+### Update
+
+```bash
+git -C ~/.claude/skills/wireframe pull
+```
+
 ## What it does
 
 - Generates 5 UX approaches (1 safe extension of your design system + 4 exploratory)
