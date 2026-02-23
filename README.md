@@ -27,7 +27,7 @@ Or manually: download [`SKILL.md`](SKILL.md) and place it at `~/.claude/skills/w
 After running `/wireframe improve the design of my header landing it looks crammed`
 
 <div align="center">
-  <img src="https://github.com/user-attachments/assets/5e769f34-e63c-40f2-9f99-511c438ed2b8" alt="wireframe skill v2" width="600">
+  <img src="https://github.com/user-attachments/assets/5e769f34-e63c-40f2-9f99-511c438ed2b8" alt="wireframe skill v2" width="750">
 </div>
 
 ## Usage
