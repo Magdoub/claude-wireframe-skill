@@ -14,16 +14,17 @@ Or manually: download [`SKILL.md`](SKILL.md) and place it at `~/.claude/skills/w
 
 ## What it does
 
-- Generates **3+ distinct UX approaches** for any feature, each with a different interaction philosophy (progressive disclosure, card-based, split view, etc.)
+- Generates **5 distinct UX approaches** for any feature, each with a different interaction philosophy (progressive disclosure, card-based, split view, etc.)
 - Outputs a **single self-contained HTML file** — no dependencies, opens in any browser
 - **Interactive prototypes** with working tabs, accordions, expandable sections, hover states, and responsive layouts
 - **Learns your codebase** on first run — scans your CSS, JS, templates, and screenshots to build persistent design context
-- Includes **numbered UX annotations** explaining key interaction decisions
-- Strict **black-and-white palette** to keep focus on structure over aesthetics
+- Strict **black-and-white palette** + **UI Visuals**
 
 
 https://github.com/user-attachments/assets/8cfee587-5379-4af2-97f1-03138a14fa52
 
+After running /wireframe improve the design of my header landing it looks crammed
+![wirefame skill v2](https://github.com/user-attachments/assets/5e769f34-e63c-40f2-9f99-511c438ed2b8)
 
 
 ## Usage
