@@ -13,6 +13,7 @@ git clone https://github.com/Magdoub/claude-wireframe-skill.git ~/.claude/skills
 Or manually: download [`SKILL.md`](SKILL.md) and place it at `~/.claude/skills/wireframe/SKILL.md`.
 
 ### Update (If you already have it installed)
+Open up the terminal and run this command
 
 ```bash
 git -C ~/.claude/skills/wireframe fetch origin && git -C ~/.claude/skills/wireframe reset --hard origin/main
