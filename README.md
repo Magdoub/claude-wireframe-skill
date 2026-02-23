@@ -15,7 +15,7 @@ Or manually: download [`SKILL.md`](SKILL.md) and place it at `~/.claude/skills/w
 ### Update
 
 ```bash
-git -C ~/.claude/skills/wireframe pull
+git -C ~/.claude/skills/wireframe fetch origin && git -C ~/.claude/skills/wireframe reset --hard origin/main
 ```
 
 ## What it does
