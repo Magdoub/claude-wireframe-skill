@@ -20,12 +20,15 @@ Or manually: download [`SKILL.md`](SKILL.md) and place it at `~/.claude/skills/w
 - **Learns your codebase** on first run — scans your CSS, JS, templates, and screenshots to build persistent design context
 - Strict **black-and-white palette** + **UI Visuals**
 
+<div align="center">
+  <video src="https://github.com/user-attachments/assets/8cfee587-5379-4af2-97f1-03138a14fa52" width="600"></video>
+</div>
 
-https://github.com/user-attachments/assets/8cfee587-5379-4af2-97f1-03138a14fa52
+After running `/wireframe improve the design of my header landing it looks crammed`
 
-After running /wireframe improve the design of my header landing it looks crammed
-![wirefame skill v2](https://github.com/user-attachments/assets/5e769f34-e63c-40f2-9f99-511c438ed2b8)
-
+<div align="center">
+  <img src="https://github.com/user-attachments/assets/5e769f34-e63c-40f2-9f99-511c438ed2b8" alt="wireframe skill v2" width="600">
+</div>
 
 ## Usage
 
