@@ -158,31 +158,36 @@ Do NOT ask clarifying questions about visual styling — this is a UX wireframe,
 
 ### 3d. Generate Wireframes (Phase 1 — UX Architect)
 
-Create an output folder at `wireframe/DDMM-<feature-name>/` where `DDMM` is today's date formatted as day then month, zero-padded (e.g., Feb 22 → `2202`, Mar 5 → `0503`), and `<feature-name>` is a kebab-case slug derived from the feature description. Inside this folder, generate these files:
-- `index.html` — HTML structure + inline `<script>`
-- `styles.css` — all wireframe CSS (linked via `<link rel="stylesheet" href="styles.css">` in `<head>`)
-- `styles-opt1.css`, `styles-opt2.css`, `styles-opt3.css`, `styles-opt4.css`, `styles-opt5.css` — empty files for Phase 2 color variant CSS (each linked via `<link rel="stylesheet" href="styles-optN.css">` in `<head>` after `styles.css`)
+Create an output folder at `wireframe/DDMM-<feature-name>/` where `DDMM` is today's date formatted as day then month, zero-padded (e.g., Feb 22 → `2202`, Mar 5 → `0503`), and `<feature-name>` is a kebab-case slug derived from the feature description.
+
+**Template-based workflow** — copy from `wireframe/templates/`, then edit:
+
+1. **Copy** this skill's bundled `wireframe/templates/base.css` → output folder (use Bash `cp`)
+2. **Copy** this skill's bundled `wireframe/templates/template.html` → output folder as `index.html` (use Bash `cp`)
+3. **Create** 5 empty `styles-optN.css` files (use Write tool, empty content)
+4. **Edit** `index.html` with targeted replacements (use Edit tool with `replace_all` where a placeholder appears more than once):
+   - `FEATURE_NAME` → actual feature name (appears in `<title>` and title bar)
+   - `PROJECT_NAME` → project name from `design-context.md`
+   - `N` in `<span id="rec-number">N</span>` → recommended option number
+   - `OPTION_1_NAME` through `OPTION_5_NAME` → short option names (each appears in tab button + header, use `replace_all`)
+   - `OPTION_1_PHILOSOPHY` through `OPTION_5_PHILOSOPHY` → one-sentence descriptions
+   - `FEATURE_SLUG` → URL slug (e.g., `settings`, `checkout`) — use `replace_all` for all 5 browser URLs
+   - `<!-- OPTION_1_CONTENT -->` through `<!-- OPTION_5_CONTENT -->` → wireframe HTML content
+   - `<!-- OPTION_1_ANNOTATIONS -->` through `<!-- OPTION_5_ANNOTATIONS -->` → annotation lists
+   - `<!-- SUMMARY_CONTENT -->` → summary table + recommendation
+5. **Write** `styles.css` with wireframe-content-specific CSS only (~200-300 lines). Framework CSS (layout, tabs, browser frame, annotations, banner, footer) is already in `base.css` — do NOT duplicate it. Only write rules for wireframe content elements (cards, forms, grids, etc.).
 
 Generate **5 B&W wireframe options** (Option 1: Safe + Options 2–5: exploratory). Phase 1 renders each option's content once inside a `<div class="browser-frame wireframe" id="frame-optN">`. Sub-tab JS toggles the wrapper class between `wireframe`, `clean`, and `polished` — no separate content panels. Annotations (`.wf-annotations`) are hidden via CSS when class is `clean` or `polished`.
 
 The output MUST follow these rules:
 
 #### Structure
-- All CSS in `styles.css`, linked via `<link rel="stylesheet">` in `<head>`. No `<style>` tags. Any `@import` statements MUST appear at the very top of `styles.css`, before all other rules.
-- All JS inline in a `<script>` tag before `</body>`
+- Wireframe-specific CSS in `styles.css`, framework CSS in `base.css` (copied from template). No `<style>` tags. Any `@import` statements MUST appear at the very top of `styles.css`, before all other rules.
+- All JS is already in the template's inline `<script>` — do NOT modify it.
 - No external dependencies — no CDN links, no fonts, no icon libraries. System fonts only: `-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif`
 - No dotted or dashed borders — use solid lines (`1px solid`) or whitespace for separation.
 - Use `href='#'` on all `<a>` tags.
-- **CSS architecture**: One HTML block per option shared across all 3 sub-tabs. The `browser-frame` wrapper gets a class toggled by JS: `.wireframe` (default), `.clean`, or `.polished`. Base layout in `styles.css`. Variant overrides in `styles-optN.css` using `.clean .selector` and `.polished .selector`. Annotations hidden via `.clean .wf-annotations, .polished .wf-annotations { display: none; }`. Browser chrome dots styled per variant via CSS. Do NOT create separate sub-panel divs for each variant — there is one panel per option. Variant-specific classes only override: `color`, `background`, `border-color`, `box-shadow`, `font-family`, `font-weight`, `transition`, `animation`. Do NOT duplicate layout rules in variant CSS. Budget: wireframe CSS ≤ 500 lines.
-- **Annotation hiding rule** (MUST be in `styles.css`): `.clean .wf-annotations, .polished .wf-annotations { display: none; }` — hides the entire annotations block (markers + explanatory text) whenever the wrapper has `.clean` or `.polished` class.
-
-#### Sub-tab icons (embed inline — use `currentColor`):
-
-sketch: `<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 48 48"><defs><mask id="ipTsketch"><g fill="#555" stroke="#fff" stroke-linejoin="round" stroke-width="4"><rect width="36" height="36" x="6" y="6" rx="3"/><path stroke-linecap="round" d="M18.6 16h10.8l3.6 4.706L24 32l-9-11.294z"/></g></mask></defs><path fill="currentColor" d="M0 0h48v48H0z" mask="url(#ipTsketch)"/></svg>`
-
-paint: `<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 48 48"><defs><mask id="ipTpaint"><g fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="4"><path d="m15.536 22.898l9.899 9.9m-9.899-9.9L7.05 31.383a7 7 0 1 0 9.9 9.9l8.485-8.486m-9.899 0l-4.243 4.243"/><path fill="#555" d="m25.435 32.797l14.907-6.432c2.688-1.16 3.809-4.379 2.086-6.745C38.264 13.903 32.65 8.89 28.51 5.823c-2.29-1.696-5.33-.64-6.46 1.975l-6.514 15.1z"/></g></mask></defs><path fill="currentColor" d="M0 0h48v48H0z" mask="url(#ipTpaint)"/></svg>`
-
-diamond-one: `<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 48 48"><defs><mask id="ipTdiamond"><path fill="#555" stroke="#fff" stroke-width="4" d="M5.939 13.934L23.036 4.53a2 2 0 0 1 1.928 0l17.097 9.404a2 2 0 0 1 .683 2.888l-17.098 24.79a2 2 0 0 1-3.292 0L5.256 16.823a2 2 0 0 1 .683-2.888Z"/></mask></defs><path fill="currentColor" d="M0 0h48v48H0z" mask="url(#ipTdiamond)"/></svg>`
+- **CSS architecture**: One HTML block per option shared across all 3 sub-tabs. The `browser-frame` wrapper gets a class toggled by JS: `.wireframe` (default), `.clean`, or `.polished`. Variant overrides in `styles-optN.css` using `.clean .selector` and `.polished .selector`. Browser chrome dots styled per variant via CSS. Do NOT create separate sub-panel divs for each variant — there is one panel per option. Variant-specific classes only override: `color`, `background`, `border-color`, `box-shadow`, `font-family`, `font-weight`, `transition`, `animation`. Do NOT duplicate layout rules in variant CSS. Budget: wireframe content CSS in `styles.css` ≤ 300 lines.
 
 #### Color Palette
 
@@ -216,28 +221,13 @@ No introductory text above wireframes. HTML starts directly with the title bar a
 
 Each main tab shows its own option panel with sub-tabs. Summary tab shows scoring table + recommendation. Only one panel visible at a time.
 
-**Attribution footer** — Phase 1 must include a footer at the bottom of the page (outside `page-wrapper`, after all option panels):
+**Attribution footer** and **browser frame** styling are pre-built in `base.css` (copied from template). The template includes the footer HTML, browser chrome with dots/URL/controls, and mobile frame variant. Do NOT regenerate these — they are already in `index.html` from the template copy.
 
-```html
-<footer class="skill-footer">
-  This design was crafted by the <a href="https://github.com/Magdoub/claude-wireframe-skill">Wireframe skill</a> — follow on GitHub
-</footer>
-```
-
-Styled in `styles.css`: centered, `font-size: 11px`, `color: #999`, `padding: 16px`, `margin-top: 8px`. Link color `#666`, underline on hover only (`text-decoration: none` default, `text-decoration: underline` on `:hover`).
-
-#### Browser / Device Frame
-
-Each option's sub-tab content (Wireframe, Clean, Polished) MUST be wrapped in a simulated **browser window** frame. This makes the output feel like a contained design artifact, not a live webpage.
-
-**Browser frame rules:**
-- **Max width**: `max-width: 900px; margin: 0 auto;` — designs must NOT stretch to fill the full viewport on wide screens.
-- **Chrome bar**: Light gray bar (`#f0f0f0` for wireframe, colored for variants) with 3 dots (gray circles in wireframe, red/yellow/green in color variants) and a URL-like text (e.g., `yourapp.com/feature-name`).
-- **Content area**: `overflow: hidden` — no content may visually escape the browser frame. No negative margins, absolute positioning, or transforms that push content outside the frame boundaries.
-- **Mobile frame**: If `design-context.md` target platform is **Mobile**, use a phone frame instead (rounded rect with notch/status bar, `max-width: 390px`).
-- Frame is purely decorative CSS — no extra dependencies.
-
-**Title bar**: Feature name + project name (one line) + `★ Recommended: Option N`.
+**Browser frame rules** (enforced by `base.css`):
+- **Max width**: `max-width: 900px; margin: 0 auto;`
+- **Content area**: `overflow: hidden` — no content may escape the frame.
+- **Mobile frame**: If `design-context.md` target platform is **Mobile**, add class `mobile-frame` to each `.browser-frame` element via Edit.
+- **Chrome bar**: Gray dots in wireframe; Phase 2 colors them red/yellow/green via variant CSS.
 
 #### Required Sections in Each Option
 1. **Title**: "Option [N]: [Short Name]" — 1-3 word name (e.g., "Card Stack", "Step Flow")
@@ -282,98 +272,9 @@ Wireframe icon: always `#000` when active, `#666` otherwise. No progress states 
 - Sub-tab bar visually lighter than main tabs — compact spacing for clear hierarchy.
 - Clean and Polished sub-tabs start gray (`#999`) and transition to their active colors when CSS loads.
 
-**"In progress" badge on Clean/Polished sub-tabs:**
+**Badges, sub-tab icons, completion banner, footer, and all JS** are pre-built in the template. Do NOT regenerate any of these — they are already in `index.html` from the template copy.
 
-Phase 1 must add a small badge element to each Clean and Polished sub-tab button:
-
-```html
-<span class="sub-tab-badge">generating...</span>
-```
-
-Styled as: small pill badge (`font-size: 9px; background: #f0f0f0; color: #999; border-radius: 8px; padding: 1px 6px;`) positioned above or next to the icon.
-
-**CSS self-reveal mechanism (replaces polling):**
-
-Phase 1 creates empty CSS files and links them in `<head>`:
-
-```html
-<link rel="stylesheet" href="styles-opt1.css">
-<link rel="stylesheet" href="styles-opt2.css">
-<link rel="stylesheet" href="styles-opt3.css">
-<link rel="stylesheet" href="styles-opt4.css">
-<link rel="stylesheet" href="styles-opt5.css">
-```
-
-Instead of JS polling to detect when CSS files have content, **the variant CSS files themselves** contain rules that handle UX transitions. When a Phase 2 agent writes `styles-optN.css`, that CSS includes self-reveal rules at the end that hide badges and color sub-tabs for all states (ready, hover, active). No JS detection needed — pure CSS cascade.
-
-How it works:
-- When the CSS file is empty → badges visible, sub-tabs gray (Phase 1 defaults)
-- When the CSS file has content → its own rules hide the badges and color the tabs in all states: ready (light color), hover (medium color), and active (dark color + border)
-- No `pollVariantCSS`, no `optionReady`, no `readyOptions` tracking — zero JS detection
-
-Phase 2 agents must include these rules at the end of each `styles-optN.css`:
-
-```css
-/* --- Self-reveal: hide badge, color sub-tabs --- */
-#frame-optN-tabs .sub-tab-badge { display: none; }
-#frame-optN-tabs .sub-tab-btn[data-variant="clean"] { color: #64B5F6; }
-#frame-optN-tabs .sub-tab-btn[data-variant="clean"]:hover { color: #1E88E5; }
-#frame-optN-tabs .sub-tab-btn[data-variant="clean"].active { color: #1565C0; border-bottom-color: #1565C0; }
-#frame-optN-tabs .sub-tab-btn[data-variant="polished"] { color: #81C784; }
-#frame-optN-tabs .sub-tab-btn[data-variant="polished"]:hover { color: #43A047; }
-#frame-optN-tabs .sub-tab-btn[data-variant="polished"].active { color: #2E7D32; border-bottom-color: #2E7D32; }
-```
-
-**Completion banner:**
-
-Phase 1 includes a hidden banner div at the top of the page:
-
-```html
-<div class="completion-banner" id="completion-banner" style="display:none;">
-  ✦ Visual designs complete — all options now have Clean + Polished variants
-  <button onclick="this.parentElement.style.display='none'" style="float:right;background:none;border:none;cursor:pointer;font-size:16px;">×</button>
-</div>
-```
-
-Banner styling: full-width, warm amber background (`#ffe5c0`), centered text, `font-size: 13px`, `padding: 10px`, dismissible with × button. Auto-hides after 8 seconds via `setTimeout`. Entrance animation: `animation: bannerSlideDown 0.4s ease-out`. Phase 1 must include this keyframe in `styles.css`:
-
-```css
-@keyframes bannerSlideDown {
-  from { transform: translateY(-100%); opacity: 0; }
-  to { transform: translateY(0); opacity: 1; }
-}
-```
-
-**One-time load check for completion banner** — Phase 1's inline `<script>` includes:
-
-```js
-window.addEventListener('load', function() {
-  var badges = document.querySelectorAll('.sub-tab-badge');
-  var anyVisible = false;
-  badges.forEach(function(b) {
-    if (getComputedStyle(b).display !== 'none') anyVisible = true;
-  });
-  if (!anyVisible && badges.length > 0) {
-    var banner = document.getElementById('completion-banner');
-    if (banner) {
-      banner.style.display = 'block';
-      setTimeout(function() { banner.style.display = 'none'; }, 8000);
-    }
-  }
-});
-```
-
-This runs once on page load. When the main agent re-opens the page after all 5 agents complete, the CSS self-reveal rules hide all badges, the load check sees none visible → shows banner. No polling needed.
-
-**Sub-tab JS behavior:**
-
-The inline script only needs:
-- Main tab switching
-- Sub-tab switching (class toggle on `#frame-optN` between `wireframe`, `clean`, `polished`)
-- One-time load check for completion banner (above)
-- NO `pollVariantCSS`, NO `optionReady`, NO `readyOptions` tracking
-
-Sub-tab clicks swap the class on `#frame-optN` between `wireframe`, `clean`, `polished`. No separate content panels — same HTML, different CSS class.
+**CSS self-reveal mechanism** — the template links 5 empty `styles-optN.css` files. When Phase 2 writes variant CSS, self-reveal rules at the end hide badges and color sub-tabs. When the page is re-opened after all agents complete, the inline JS load check sees no visible badges → shows the completion banner. No polling needed — pure CSS cascade + one-time load check.
 
 ### 3e. Launch Parallel Color Agents (Phase 2)
 
@@ -394,7 +295,7 @@ All with:
 ```
 
 Each agent's prompt MUST include:
-1. **File paths**: Full absolute paths to `index.html`, the agent's own `styles-optN.css`, `design-taste.md`, and `design-context.md`
+1. **File paths**: Full absolute paths to `index.html`, the agent's own `styles-optN.css`, `design-taste.md`, `design-context.md`, and this skill's bundled `wireframe/templates/self-reveal.css`
 2. **Visual Designer persona**: The instructions below
 3. **Scope**: "Write all CSS to `styles-optN.css`. Do NOT modify `index.html`."
 4. **CSS budget**: ≤ 200 lines in `styles-optN.css`
@@ -414,14 +315,7 @@ Each agent's prompt MUST include:
 > 4. Do NOT modify `index.html` — CSS is your only output
 > 5. Google Fonts allowed via `@import` at top of `styles-optN.css`
 > 6. Budget: ≤ 200 lines
-> 7. At the END of your CSS file, include these self-reveal rules (replace N with your option number):
->    `#frame-optN-tabs .sub-tab-badge { display: none; }`
->    `#frame-optN-tabs .sub-tab-btn[data-variant="clean"] { color: #64B5F6; }`
->    `#frame-optN-tabs .sub-tab-btn[data-variant="clean"]:hover { color: #1E88E5; }`
->    `#frame-optN-tabs .sub-tab-btn[data-variant="clean"].active { color: #1565C0; border-bottom-color: #1565C0; }`
->    `#frame-optN-tabs .sub-tab-btn[data-variant="polished"] { color: #81C784; }`
->    `#frame-optN-tabs .sub-tab-btn[data-variant="polished"]:hover { color: #43A047; }`
->    `#frame-optN-tabs .sub-tab-btn[data-variant="polished"].active { color: #2E7D32; border-bottom-color: #2E7D32; }`
+> 7. At the END of your CSS file, copy the self-reveal rules from this skill's bundled `wireframe/templates/self-reveal.css` and replace `N` with your option number.
 >
 > Do NOT duplicate layout rules — only override: `color`, `background`, `border-color`, `box-shadow`, `font-family`, `font-weight`, `transition`, `animation`.
 >

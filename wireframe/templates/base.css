@@ -1,0 +1,244 @@
+/* === Base Framework CSS — shared across all wireframe outputs === */
+
+/* Reset & Layout */
+*, *::before, *::after { box-sizing: border-box; }
+body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #f5f5f5; color: #333; }
+
+.page-wrapper {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+/* Title Bar */
+.title-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  background: #fff;
+  border: 1px solid #ccc;
+  border-radius: 8px 8px 0 0;
+  font-size: 14px;
+  color: #333;
+}
+.title-bar .rec { color: #666; font-size: 13px; }
+
+/* Main Tabs */
+.main-tabs {
+  display: flex;
+  background: #fff;
+  border-left: 1px solid #ccc;
+  border-right: 1px solid #ccc;
+  overflow-x: auto;
+}
+.tab-btn {
+  flex: 1;
+  padding: 10px 12px;
+  border: none;
+  border-bottom: 2px solid transparent;
+  background: #fff;
+  cursor: pointer;
+  font-size: 13px;
+  color: #666;
+  white-space: nowrap;
+  transition: color 0.2s, border-color 0.2s;
+}
+.tab-btn:hover { color: #333; background: #f9f9f9; }
+.tab-btn.active { color: #000; border-bottom-color: #000; font-weight: 600; }
+
+/* Option Panels */
+.option-panel {
+  display: none;
+  background: #fff;
+  border: 1px solid #ccc;
+  border-top: none;
+  padding: 20px;
+}
+.option-panel.active { display: block; }
+
+.option-panel h2 { margin: 0 0 4px 0; font-size: 18px; color: #000; }
+.option-description { margin: 0 0 16px 0; font-size: 13px; color: #666; }
+
+/* Sub-tab Bar */
+.sub-tab-bar {
+  display: flex;
+  gap: 24px;
+  justify-content: center;
+  padding: 8px 0 12px;
+  border-bottom: 1px solid #eee;
+  margin-bottom: 16px;
+}
+.sub-tab-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  padding: 4px 8px 6px;
+  cursor: pointer;
+  color: #666;
+  font-size: 12px;
+  transition: color 0.2s, border-color 0.2s;
+  position: relative;
+}
+.sub-tab-btn svg { width: 24px; height: 24px; }
+.sub-tab-btn span.sub-tab-label { font-size: 12px; }
+
+/* Sub-tab: Wireframe */
+.sub-tab-btn[data-variant="wireframe"] { color: #666; }
+.sub-tab-btn[data-variant="wireframe"]:hover { color: #333; }
+.sub-tab-btn[data-variant="wireframe"].active { color: #000; border-bottom-color: #000; }
+
+/* Sub-tab: Clean — default gray (before Phase 2 CSS loads) */
+.sub-tab-btn[data-variant="clean"] { color: #999; }
+.sub-tab-btn[data-variant="clean"]:hover { color: #999; }
+.sub-tab-btn[data-variant="clean"].active { color: #999; border-bottom-color: #999; }
+
+/* Sub-tab: Polished — default gray (before Phase 2 CSS loads) */
+.sub-tab-btn[data-variant="polished"] { color: #999; }
+.sub-tab-btn[data-variant="polished"]:hover { color: #999; }
+.sub-tab-btn[data-variant="polished"].active { color: #999; border-bottom-color: #999; }
+
+/* Sub-tab Badge */
+.sub-tab-badge {
+  font-size: 9px;
+  background: #f0f0f0;
+  color: #999;
+  border-radius: 8px;
+  padding: 1px 6px;
+  position: absolute;
+  top: -6px;
+  right: -10px;
+  white-space: nowrap;
+}
+
+/* Browser Frame */
+.browser-frame {
+  max-width: 900px;
+  margin: 0 auto;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #fff;
+}
+.browser-chrome {
+  display: flex;
+  align-items: center;
+  padding: 8px 12px;
+  background: #f0f0f0;
+  border-bottom: 1px solid #ccc;
+  gap: 8px;
+}
+.browser-dots {
+  display: flex;
+  gap: 6px;
+}
+.browser-dots span {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #ccc;
+}
+.browser-url {
+  flex: 1;
+  font-size: 12px;
+  color: #999;
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 4px 8px;
+}
+.browser-controls {
+  display: flex;
+  gap: 8px;
+  font-size: 14px;
+  color: #999;
+}
+.browser-content {
+  padding: 16px;
+  overflow: hidden;
+  min-height: 400px;
+}
+
+/* Mobile Frame Variant */
+.browser-frame.mobile-frame {
+  max-width: 390px;
+  border-radius: 24px;
+  border: 3px solid #333;
+}
+.mobile-frame .browser-chrome {
+  justify-content: center;
+  padding: 6px 12px;
+  background: #fafafa;
+}
+.mobile-frame .browser-chrome .browser-dots,
+.mobile-frame .browser-chrome .browser-controls { display: none; }
+.mobile-frame .browser-url {
+  text-align: center;
+  border: none;
+  background: transparent;
+  font-size: 11px;
+}
+
+/* Annotation System */
+.wf-annotations {
+  margin-top: 16px;
+  padding: 12px;
+  border: 1px solid #eee;
+  border-radius: 6px;
+  background: #fafafa;
+}
+.wf-annotations h3 {
+  margin: 0 0 8px;
+  font-size: 14px;
+  color: #333;
+}
+.wf-annotations ul { margin: 0; padding-left: 20px; }
+.wf-annotations li { font-size: 12px; color: #666; margin-bottom: 4px; }
+
+/* Annotation Hiding — Clean/Polished */
+.clean .wf-annotations,
+.polished .wf-annotations { display: none; }
+
+/* Annotation Markers (inline) */
+.wf-marker {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 1px solid #ccc;
+  background: #fff;
+  font-size: 10px;
+  color: #666;
+  vertical-align: super;
+  margin-left: 2px;
+}
+
+/* Completion Banner */
+.completion-banner {
+  background: #ffe5c0;
+  text-align: center;
+  font-size: 13px;
+  padding: 10px;
+  animation: bannerSlideDown 0.4s ease-out;
+}
+@keyframes bannerSlideDown {
+  from { transform: translateY(-100%); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+/* Footer */
+.skill-footer {
+  text-align: center;
+  font-size: 11px;
+  color: #999;
+  padding: 16px;
+  margin-top: 8px;
+}
+.skill-footer a { color: #666; text-decoration: none; }
+.skill-footer a:hover { text-decoration: underline; }

@@ -1,0 +1,9 @@
+/* --- Self-reveal: hide badge, color sub-tabs --- */
+/* Copy to end of styles-optN.css, replace N with option number */
+#frame-optN-tabs .sub-tab-badge { display: none; }
+#frame-optN-tabs .sub-tab-btn[data-variant="clean"] { color: #64B5F6; }
+#frame-optN-tabs .sub-tab-btn[data-variant="clean"]:hover { color: #1E88E5; }
+#frame-optN-tabs .sub-tab-btn[data-variant="clean"].active { color: #1565C0; border-bottom-color: #1565C0; }
+#frame-optN-tabs .sub-tab-btn[data-variant="polished"] { color: #81C784; }
+#frame-optN-tabs .sub-tab-btn[data-variant="polished"]:hover { color: #43A047; }
+#frame-optN-tabs .sub-tab-btn[data-variant="polished"].active { color: #2E7D32; border-bottom-color: #2E7D32; }
